@@ -1,0 +1,70 @@
+---
+description: Feature Sliced Design architecture conventions
+globs: src/**
+alwaysApply: false
+---
+
+# Feature Sliced Design (FSD)
+
+## Layers
+
+From top to bottom (higher layers import from lower ones, never the reverse):
+
+`app` > `pages` > `widgets` > `features` > `entities` > `shared`
+
+- **app** — entry point, providers, router, store composition, global styles
+- **pages** — route-level components; compose widgets, features, and entities
+- **widgets** — large self-contained UI blocks assembled from features/entities
+- **features** — user interactions with business logic (forms, toggles, actions)
+- **entities** — domain models (user, product) with their UI, model, and API
+- **shared** — reusable utilities, UI kit, API client; zero business logic
+
+## Import Rules
+
+A module may only import from layers **strictly below** it. Cross-imports between slices on the same layer are forbidden.
+
+```typescript
+// GOOD — page imports from features and shared
+import { LoginForm } from "@/features/auth";
+import { cn } from "@/shared/lib";
+
+// BAD — feature imports from a page (upward)
+import { HomePage } from "@/pages/home";
+
+// BAD — one entity imports from another entity (same layer)
+import { UserCard } from "@/entities/user";  // inside entities/post
+```
+
+## Slice Structure
+
+Each slice contains segments and a barrel export:
+
+```
+src/<layer>/<slice>/
+  ui/          — components + colocated .scss
+  model/       — Redux slices, selectors, types
+  api/         — API calls (RTK Query or thunks)
+  lib/         — helpers scoped to this slice
+  index.ts     — public API (barrel export)
+```
+
+Not every segment is required — include only what the slice needs.
+
+## Public API
+
+Every slice **must** have an `index.ts` that re-exports only its public interface. Import from the barrel, never from internal paths.
+
+```typescript
+// GOOD
+import { HomePage } from "@/pages/home";
+
+// BAD — reaches into internal segment
+import { HomePage } from "@/pages/home/ui/HomePage";
+```
+
+## Project Conventions
+
+- **Path alias**: `@/*` maps to `src/*`
+- **Styling**: BEM via `cn` from `@/shared/lib` (wraps `bem-cn-lite`); colocate `.scss` files next to their component
+- **State**: Redux Toolkit slices live in `model/` segments; compose reducers in `src/app/store.ts`
+- **Routing**: React Router configuration lives in `src/app/router.tsx`
