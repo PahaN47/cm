@@ -1,0 +1,17 @@
+@import '@/shared/styles';
+
+.Layout {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(12, 1fr);
+    gap: $spacing-2;
+    width: 100vw;
+    height: 100vh;
+    padding: $spacing-2;
+    background: $color-accent;
+
+    &__panel {
+        background: $color-bg-primary;
+        border: 2px solid $color-border;
+    }
+}

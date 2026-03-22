@@ -1,0 +1,107 @@
+@import '@/shared/styles';
+
+.Input {
+    display: inline-flex;
+    align-items: center;
+    width: 100%;
+    border: none;
+    border-radius: $radius-md;
+    font-family: inherit;
+    font-weight: 600;
+    color: $color-text-primary;
+    @include transition;
+
+    &::placeholder {
+        color: $color-text-muted;
+    }
+
+    &:focus-visible {
+        @include focus-ring;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    // Sizes
+
+    &_size_s {
+        @include text-xs;
+        padding: $spacing-1 $spacing-3;
+    }
+
+    &_size_m {
+        @include text-sm;
+        padding: $spacing-2 $spacing-4;
+    }
+
+    &_size_l {
+        @include text-base;
+        padding: $spacing-3 $spacing-6;
+    }
+
+    // Variants × Colors
+
+    $block: &;
+    &_variant {
+        &_normal {
+            &#{$block}_color {
+                &_default {
+                    background: $color-border;
+                    color: $color-text-primary;
+
+                    &:hover:not(:disabled) {
+                        background: $color-border-light;
+                    }
+                }
+
+                &_accent {
+                    background: $color-accent-muted;
+                    border: 1px solid $color-accent;
+                    color: $color-text-primary;
+
+                    &:focus-visible {
+                        border-color: $color-accent-hover;
+                    }
+                }
+            }
+        }
+
+        &_clear {
+            &#{$block}_color {
+                &_default {
+                    background: transparent;
+                    border: 1px solid $color-border-light;
+                    color: $color-text-primary;
+
+                    &:hover:not(:disabled) {
+                        border-color: $color-text-muted;
+                        background: $color-bg-elevated;
+                    }
+                }
+
+                &_accent {
+                    background: transparent;
+                    border: 1px solid $color-accent;
+                    color: $color-accent;
+
+                    &:hover:not(:disabled) {
+                        border-color: $color-accent-hover;
+                        background: $color-accent-muted;
+                    }
+                }
+            }
+        }
+    }
+
+    // Error state
+
+    &_error {
+        border: 1px solid #ff5e5e;
+
+        &:focus-visible {
+            outline-color: #ff5e5e;
+        }
+    }
+}

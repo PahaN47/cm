@@ -1,0 +1,37 @@
+// ── Colors: Grayscale ────────────────────────────────────────────────────────
+$color-bg-primary: #1c1c1c;
+$color-bg-secondary: #262626;
+$color-bg-elevated: #303030;
+$color-border: #393939;
+$color-border-light: #494949;
+$color-text-muted: #808080;
+$color-text-secondary: #ababab;
+$color-text-primary: #e4e4e4;
+
+// ── Colors: Accent ───────────────────────────────────────────────────────────
+$color-accent: #5eaeff;
+$color-accent-hover: #7dc0ff;
+$color-accent-muted: rgba(94, 174, 255, 0.15);
+
+// ── Spacing ──────────────────────────────────────────────────────────────────
+$spacing-1: 4px;
+$spacing-2: 8px;
+$spacing-3: 12px;
+$spacing-4: 16px;
+$spacing-5: 20px;
+$spacing-6: 24px;
+$spacing-8: 32px;
+$spacing-10: 40px;
+$spacing-12: 48px;
+$spacing-16: 64px;
+
+// ── Border Radius ────────────────────────────────────────────────────────────
+$radius-sm: 4px;
+$radius-md: 8px;
+$radius-lg: 12px;
+$radius-xl: 16px;
+$radius-full: 9999px;
+
+// ── Typography ───────────────────────────────────────────────────────────────
+$font-family: 'JetBrains Mono', 'Fira Code', 'Source Code Pro',
+    ui-monospace, Menlo, Consolas, monospace;

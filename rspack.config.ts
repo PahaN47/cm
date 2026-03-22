@@ -46,7 +46,17 @@ export default defineConfig({
       },
       {
         test: /\.scss$/,
-        use: [{ loader: "sass-loader" }],
+        use: [
+          {
+            loader: "sass-loader",
+            options: {
+              additionalData: `@use "@/shared/styles" as *;`,
+              sassOptions: {
+                loadPaths: [path.resolve(__dirname, "src")],
+              },
+            },
+          },
+        ],
         type: "css",
       },
       {
