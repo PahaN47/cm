@@ -1,51 +1,51 @@
-import type { GraphElement } from "@/entities/graph";
+import type { GraphElement } from '@/entities/graph';
 
 export interface AddElementAction {
-  type: "addElement";
-  element: GraphElement;
+    type: 'addElement';
+    element: GraphElement;
 }
 
 export interface RemoveElementAction {
-  type: "removeElement";
-  element: GraphElement;
+    type: 'removeElement';
+    element: GraphElement;
 }
 
 export interface UpdateElementAction {
-  type: "updateElement";
-  id: string;
-  before: Partial<GraphElement>;
-  after: Partial<GraphElement>;
+    type: 'updateElement';
+    id: string;
+    before: Partial<GraphElement>;
+    after: Partial<GraphElement>;
 }
 
 export interface AddRelationAction {
-  type: "addRelation";
-  relation: "nodeEdges" | "parentChildren" | "childParents";
-  fromId: string;
-  toElementId: string;
+    type: 'addRelation';
+    relation: 'nodeEdges' | 'parentChildren' | 'childParents';
+    fromId: string;
+    toElementId: string;
 }
 
 export interface RemoveRelationAction {
-  type: "removeRelation";
-  relation: "nodeEdges" | "parentChildren" | "childParents";
-  fromId: string;
-  toElementId: string;
+    type: 'removeRelation';
+    relation: 'nodeEdges' | 'parentChildren' | 'childParents';
+    fromId: string;
+    toElementId: string;
 }
 
 export interface BatchAction {
-  type: "batch";
-  actions: ActionDescriptor[];
+    type: 'batch';
+    actions: ActionDescriptor[];
 }
 
 export type ActionDescriptor =
-  | AddElementAction
-  | RemoveElementAction
-  | UpdateElementAction
-  | AddRelationAction
-  | RemoveRelationAction
-  | BatchAction;
+    | AddElementAction
+    | RemoveElementAction
+    | UpdateElementAction
+    | AddRelationAction
+    | RemoveRelationAction
+    | BatchAction;
 
 export interface HistoryState {
-  undoStack: ActionDescriptor[];
-  redoStack: ActionDescriptor[];
-  maxLength: number;
+    undoStack: ActionDescriptor[];
+    redoStack: ActionDescriptor[];
+    maxLength: number;
 }

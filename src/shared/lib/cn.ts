@@ -1,3 +1,3 @@
-import block from "bem-cn-lite";
+import block from 'bem-cn-lite';
 
 export { block as cn };

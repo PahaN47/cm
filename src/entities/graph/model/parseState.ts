@@ -1,4 +1,4 @@
-import type { GraphStore } from "./graphStore";
+import type { GraphStore } from './graphStore';
 
 // TODO: Define the return type once the visualizer/component format is known.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -11,5 +11,5 @@ type ParsedState = any;
  * Implementation deferred until the target format is decided.
  */
 export function parseGraphState(_store: GraphStore): ParsedState {
-  // TODO: implement
+    // TODO: implement
 }
