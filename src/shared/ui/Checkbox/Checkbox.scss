@@ -1,0 +1,130 @@
+@import '@/shared/styles';
+
+.Checkbox {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    @include transition;
+
+    &_disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    &__input {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+        pointer-events: none;
+
+        &:focus-visible ~ .Checkbox__box {
+            @include focus-ring;
+        }
+
+        &:checked ~ .Checkbox__box {
+            .Checkbox__checkmark {
+                opacity: 1;
+                transform: rotate(45deg) scale(1);
+            }
+        }
+    }
+
+    &__box {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: $radius-sm;
+        @include transition;
+    }
+
+    &__checkmark {
+        display: block;
+        border-style: solid;
+        border-color: currentColor;
+        border-width: 0 2px 2px 0;
+        opacity: 0;
+        transform: rotate(45deg) scale(0.5);
+        @include transition(opacity transform);
+    }
+
+    // Sizes
+
+    &_size_s {
+        .Checkbox__box {
+            width: 16px;
+            height: 16px;
+        }
+
+        .Checkbox__checkmark {
+            width: 4px;
+            height: 8px;
+            margin-top: -2px;
+        }
+    }
+
+    &_size_m {
+        .Checkbox__box {
+            width: 20px;
+            height: 20px;
+        }
+
+        .Checkbox__checkmark {
+            width: 5px;
+            height: 10px;
+            margin-top: -2px;
+        }
+    }
+
+    &_size_l {
+        .Checkbox__box {
+            width: 24px;
+            height: 24px;
+        }
+
+        .Checkbox__checkmark {
+            width: 6px;
+            height: 12px;
+            margin-top: -3px;
+        }
+    }
+
+    // Colors
+
+    &_color {
+        &_default {
+            .Checkbox__box {
+                border: 1px solid $color-border-light;
+                color: $color-text-primary;
+            }
+
+            &:hover:not(.Checkbox_disabled) .Checkbox__box {
+                border-color: $color-text-muted;
+                background: $color-bg-elevated;
+            }
+
+            .Checkbox__input:checked ~ .Checkbox__box {
+                background: $color-border-light;
+                border-color: $color-border-light;
+            }
+        }
+
+        &_accent {
+            .Checkbox__box {
+                border: 1px solid $color-accent;
+                color: $color-bg-primary;
+            }
+
+            &:hover:not(.Checkbox_disabled) .Checkbox__box {
+                border-color: $color-accent-hover;
+                background: $color-accent-muted;
+            }
+
+            .Checkbox__input:checked ~ .Checkbox__box {
+                background: $color-accent;
+                border-color: $color-accent;
+            }
+        }
+    }
+}

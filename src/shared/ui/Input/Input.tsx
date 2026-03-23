@@ -7,14 +7,12 @@ import './Input.scss';
 const i = cn('Input');
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-    variant?: 'normal' | 'clear';
     size?: 's' | 'm' | 'l';
     color?: 'default' | 'accent';
     error?: boolean;
 }
 
 const Input = ({
-    variant = 'normal',
     size = 'm',
     color = 'default',
     error,
@@ -22,7 +20,7 @@ const Input = ({
     ...rest
 }: InputProps) => {
     return (
-        <input className={i({ variant, size, color, error }, className)} {...rest} />
+        <input className={i({ size, color, error }, className)} {...rest} />
     );
 };
 

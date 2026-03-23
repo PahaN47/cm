@@ -41,56 +41,28 @@
         padding: $spacing-3 $spacing-6;
     }
 
-    // Variants × Colors
+    // Colors
 
-    $block: &;
-    &_variant {
-        &_normal {
-            &#{$block}_color {
-                &_default {
-                    background: $color-border;
-                    color: $color-text-primary;
+    &_color {
+        &_default {
+            background: transparent;
+            border: 1px solid $color-border-light;
+            color: $color-text-primary;
 
-                    &:hover:not(:disabled) {
-                        background: $color-border-light;
-                    }
-                }
-
-                &_accent {
-                    background: $color-accent-muted;
-                    border: 1px solid $color-accent;
-                    color: $color-text-primary;
-
-                    &:focus-visible {
-                        border-color: $color-accent-hover;
-                    }
-                }
+            &:hover:not(:disabled) {
+                border-color: $color-text-muted;
+                background: $color-bg-elevated;
             }
         }
 
-        &_clear {
-            &#{$block}_color {
-                &_default {
-                    background: transparent;
-                    border: 1px solid $color-border-light;
-                    color: $color-text-primary;
+        &_accent {
+            background: transparent;
+            border: 1px solid $color-accent;
+            color: $color-accent;
 
-                    &:hover:not(:disabled) {
-                        border-color: $color-text-muted;
-                        background: $color-bg-elevated;
-                    }
-                }
-
-                &_accent {
-                    background: transparent;
-                    border: 1px solid $color-accent;
-                    color: $color-accent;
-
-                    &:hover:not(:disabled) {
-                        border-color: $color-accent-hover;
-                        background: $color-accent-muted;
-                    }
-                }
+            &:hover:not(:disabled) {
+                border-color: $color-accent-hover;
+                background: $color-accent-muted;
             }
         }
     }

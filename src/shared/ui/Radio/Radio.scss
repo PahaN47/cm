@@ -1,0 +1,128 @@
+@import '@/shared/styles';
+
+.Radio {
+    display: inline-flex;
+
+    &_disabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
+    &__input {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+        pointer-events: none;
+
+        &:focus-visible ~ * {
+            @include focus-ring;
+        }
+    }
+
+    &__option {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border-radius: 0;
+        font-family: inherit;
+        font-weight: 600;
+        color: $color-text-primary;
+        @include transition;
+
+        &:first-child {
+            border-radius: $radius-md 0 0 $radius-md;
+        }
+
+        &:last-child {
+            border-radius: 0 $radius-md $radius-md 0;
+        }
+
+        &_disabled {
+            cursor: not-allowed;
+        }
+
+        & + & {
+            margin-left: -1px;
+        }
+
+        &:hover {
+            z-index: 1;
+        }
+
+        &_selected {
+            z-index: 2;
+        }
+    }
+
+    // Sizes
+
+    &_size_s .Radio__option {
+        @include text-xs;
+        padding: $spacing-1 $spacing-3;
+    }
+
+    &_size_m .Radio__option {
+        @include text-sm;
+        padding: $spacing-2 $spacing-4;
+    }
+
+    &_size_l .Radio__option {
+        @include text-base;
+        padding: $spacing-3 $spacing-6;
+    }
+
+    // Colors
+
+    $block: &;
+
+    &_color {
+        &_default {
+            #{$block}__option {
+                background: transparent;
+                border: 1px solid $color-border-light;
+                color: $color-text-primary;
+
+                &:hover:not(#{$block}__option_disabled) {
+                    border-color: $color-text-muted;
+                    background: $color-bg-elevated;
+                }
+
+                &_selected {
+                    background: $color-border;
+                    border-color: $color-border;
+
+                    &:hover:not(#{$block}__option_disabled) {
+                        background: $color-border-light;
+                        border-color: $color-border-light;
+                    }
+                }
+            }
+        }
+
+        &_accent {
+            #{$block}__option {
+                background: transparent;
+                border: 1px solid $color-accent;
+                color: $color-accent;
+
+                &:hover:not(#{$block}__option_disabled) {
+                    border-color: $color-accent-hover;
+                    background: $color-accent-muted;
+                }
+
+                &_selected {
+                    background: $color-accent;
+                    border-color: $color-accent;
+                    color: $color-bg-primary;
+
+                    &:hover:not(#{$block}__option_disabled) {
+                        background: $color-accent-hover;
+                        border-color: $color-accent-hover;
+                    }
+                }
+            }
+        }
+    }
+}

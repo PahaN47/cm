@@ -1,8 +1,14 @@
+import { useState } from 'react';
+
 import { Layout } from '@/shared/ui/Layout';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
+import { Checkbox } from '@/shared/ui/Checkbox';
+import { Radio } from '@/shared/ui/Radio';
 
 export const HomePage = () => {
+    const [radioValue, setRadioValue] = useState('one');
+
     return (
         <Layout>
             <Layout.Panel row={[1, 10]} col={[1, 8]}>
@@ -18,19 +24,49 @@ export const HomePage = () => {
                 <Button color="accent" variant="clear" size="s">Accent Clear S</Button>
                 <Button color="accent" variant="clear" size="m">Accent Clear M</Button>
                 <Button color="accent" variant="clear" size="l">Accent Clear L</Button>
-                <Input size="s" placeholder="Normal S" />
-                <Input size="m" placeholder="Normal M" />
-                <Input size="l" placeholder="Normal L" />
-                <Input variant="clear" size="s" placeholder="Clear S" />
-                <Input variant="clear" size="m" placeholder="Clear M" />
-                <Input variant="clear" size="l" placeholder="Clear L" />
+                <Input size="s" placeholder="Default S" />
+                <Input size="m" placeholder="Default M" />
+                <Input size="l" placeholder="Default L" />
                 <Input color="accent" size="s" placeholder="Accent S" />
                 <Input color="accent" size="m" placeholder="Accent M" />
                 <Input color="accent" size="l" placeholder="Accent L" />
-                <Input color="accent" variant="clear" size="s" placeholder="Accent Clear S" />
-                <Input color="accent" variant="clear" size="m" placeholder="Accent Clear M" />
-                <Input color="accent" variant="clear" size="l" placeholder="Accent Clear L" />
                 <Input error size="m" placeholder="Error" />
+                <Checkbox size="s" />
+                <Checkbox size="m" />
+                <Checkbox size="l" />
+                <Checkbox color="accent" size="s" />
+                <Checkbox color="accent" size="m" />
+                <Checkbox color="accent" size="l" />
+                <Radio value={radioValue} onChange={setRadioValue} size="s">
+                    <Radio.Option value="one">One</Radio.Option>
+                    <Radio.Option value="two">Two</Radio.Option>
+                    <Radio.Option value="three">Three</Radio.Option>
+                </Radio>
+                <Radio value={radioValue} onChange={setRadioValue} size="m">
+                    <Radio.Option value="one">One</Radio.Option>
+                    <Radio.Option value="two">Two</Radio.Option>
+                    <Radio.Option value="three">Three</Radio.Option>
+                </Radio>
+                <Radio value={radioValue} onChange={setRadioValue} size="l">
+                    <Radio.Option value="one">One</Radio.Option>
+                    <Radio.Option value="two">Two</Radio.Option>
+                    <Radio.Option value="three">Three</Radio.Option>
+                </Radio>
+                <Radio value={radioValue} onChange={setRadioValue} color="accent" size="s">
+                    <Radio.Option value="one">One</Radio.Option>
+                    <Radio.Option value="two">Two</Radio.Option>
+                    <Radio.Option value="three">Three</Radio.Option>
+                </Radio>
+                <Radio value={radioValue} onChange={setRadioValue} color="accent" size="m">
+                    <Radio.Option value="one">One</Radio.Option>
+                    <Radio.Option value="two">Two</Radio.Option>
+                    <Radio.Option value="three">Three</Radio.Option>
+                </Radio>
+                <Radio value={radioValue} onChange={setRadioValue} color="accent" size="l">
+                    <Radio.Option value="one">One</Radio.Option>
+                    <Radio.Option value="two">Two</Radio.Option>
+                    <Radio.Option value="three">Three</Radio.Option>
+                </Radio>
             </Layout.Panel>
             <Layout.Panel row={[1, 10]} col={[9, 12]}></Layout.Panel>
             <Layout.Panel row={[11, 12]} col={[1, 12]}></Layout.Panel>
