@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 
 import { cn } from '@/shared/lib/cn';
 
@@ -22,11 +22,15 @@ const FormField = <C extends React.ElementType>({
     component: Component,
     ...rest
 }: FormFieldProps<C>) => {
+    const id = useId();
+
     return (
         <>
-            <span className={b('label')}>{label}</span>
+            <label className={b('label')} htmlFor={id}>
+                {label}
+            </label>
             {/* Type safety is enforced at the call site via FormFieldProps<C> */}
-            {React.createElement(Component, rest as never)}
+            {React.createElement(Component, { ...rest, id } as never)}
         </>
     );
 };
