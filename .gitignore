@@ -9,5 +9,5 @@ dist
 .DS_Store
 *.log
 
-.cursor
+.cursor/*
 .cursorignore
