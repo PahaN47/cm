@@ -12,16 +12,18 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     error?: boolean;
 }
 
-const Input = ({
-    size = 'm',
-    color = 'default',
-    error,
-    className,
-    ...rest
-}: InputProps) => {
-    return (
-        <input className={i({ size, color, error }, className)} {...rest} />
-    );
-};
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+    ({ size = 'm', color = 'default', error, className, ...rest }, ref) => {
+        return (
+            <input
+                ref={ref}
+                className={i({ size, color, error }, className)}
+                {...rest}
+            />
+        );
+    },
+);
+
+Input.displayName = 'Input';
 
 export default Input;

@@ -11,21 +11,25 @@ interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>
     color?: 'default' | 'accent';
 }
 
-const Checkbox = ({
-    size = 'm',
-    color = 'default',
-    className,
-    disabled,
-    ...rest
-}: CheckboxProps) => {
-    return (
-        <label className={b({ size, color, disabled }, className)}>
-            <input className={b('input')} type="checkbox" disabled={disabled} {...rest} />
-            <span className={b('box')}>
-                <span className={b('checkmark')} />
-            </span>
-        </label>
-    );
-};
+const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
+    ({ size = 'm', color = 'default', className, disabled, ...rest }, ref) => {
+        return (
+            <label className={b({ size, color, disabled }, className)}>
+                <input
+                    ref={ref}
+                    className={b('input')}
+                    type="checkbox"
+                    disabled={disabled}
+                    {...rest}
+                />
+                <span className={b('box')}>
+                    <span className={b('checkmark')} />
+                </span>
+            </label>
+        );
+    },
+);
+
+Checkbox.displayName = 'Checkbox';
 
 export default Checkbox;

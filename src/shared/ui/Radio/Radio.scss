@@ -1,7 +1,7 @@
 @import '@/shared/styles';
 
 .Radio {
-    display: inline-flex;
+    display: flex;
 
     &_disabled {
         opacity: 0.5;
@@ -22,6 +22,7 @@
 
     &__option {
         display: inline-flex;
+        flex: 1;
         align-items: center;
         justify-content: center;
         cursor: pointer;
