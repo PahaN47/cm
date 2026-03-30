@@ -1,5 +1,14 @@
-export { GraphStore, graphStore, parseGraphState } from './model';
+export {
+    GraphStore,
+    createGraphParser,
+    GraphStateProvider,
+    useGraphState,
+    useGraphElement,
+} from './model';
+export { parseMetagraphXml } from './lib/parseMetagraphXml';
 export type {
+    AttributeType,
+    AttributeValue,
     BaseElement,
     Vertex,
     Edge,
@@ -9,4 +18,7 @@ export type {
     NodeElement,
     EdgeElement,
     RelationType,
+    ParsedRelation,
+    ParsedGraph,
+    SerializedElement,
 } from './model';

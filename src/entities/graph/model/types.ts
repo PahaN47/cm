@@ -1,7 +1,15 @@
+export type AttributeType = 'string' | 'int' | 'float';
+
+export interface AttributeValue {
+    value: string | number;
+    type: AttributeType;
+    system: boolean;
+}
+
 export interface BaseElement {
     id: string;
     type: 'vertex' | 'edge' | 'metavertex' | 'metaedge';
-    attributes: Record<string, unknown>;
+    attributes: Record<string, AttributeValue>;
 }
 
 export interface Vertex extends BaseElement {
@@ -32,3 +40,26 @@ export type NodeElement = Vertex | MetaVertex;
 export type EdgeElement = Edge | MetaEdge;
 
 export type RelationType = 'nodeEdges' | 'parentChildren' | 'childParents';
+
+export interface ParsedRelation {
+    type: RelationType;
+    fromId: string;
+    toId: string;
+}
+
+export interface ParsedGraph {
+    elements: GraphElement[];
+    relations: ParsedRelation[];
+}
+
+export interface SerializedElement {
+    id: string;
+    type: 'vertex' | 'edge' | 'metavertex' | 'metaedge';
+    attributes: Record<string, AttributeValue>;
+    source?: string;
+    target?: string;
+    directed?: boolean;
+    edges: string[];
+    children: string[];
+    parents: string[];
+}

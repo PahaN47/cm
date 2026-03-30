@@ -1,1 +1,1 @@
-export {};
+export { fetchGraph } from './fetchGraph';

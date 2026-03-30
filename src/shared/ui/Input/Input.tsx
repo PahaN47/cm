@@ -6,7 +6,10 @@ import './Input.scss';
 
 const i = cn('Input');
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface InputProps extends Omit<
+    React.InputHTMLAttributes<HTMLInputElement>,
+    'size'
+> {
     size?: 's' | 'm' | 'l';
     color?: 'default' | 'accent';
     error?: boolean;
