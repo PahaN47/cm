@@ -1,13 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { GraphStore, GraphStateProvider, parseMetagraphXml } from '@/entities/graph';
+import {
+    GraphStore,
+    GraphStateProvider,
+    parseMetagraphXml,
+} from '@/entities/graph';
 import { fetchGraph } from '@/shared/api/fetchGraph';
 import { GraphStub } from '@/widgets/graph-stub';
 import { ControlPanel } from '@/widgets/control-panel';
 import { Layout } from '@/shared/ui/Layout';
 
 export const HomePage = () => {
-    const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
+    const [selectedElementId, setSelectedElementId] = useState<string | null>(
+        null,
+    );
     const store = useMemo(() => new GraphStore(), []);
 
     useEffect(() => {
@@ -28,7 +34,10 @@ export const HomePage = () => {
                     />
                 </Layout.Panel>
                 <Layout.Panel row={[1, 10]} col={[9, 12]}>
-                    <ControlPanel selectedElementId={selectedElementId} />
+                    <ControlPanel
+                        selectedElementId={selectedElementId}
+                        setSelectedElementId={setSelectedElementId}
+                    />
                 </Layout.Panel>
                 <Layout.Panel row={[11, 12]} col={[1, 12]}></Layout.Panel>
             </Layout>

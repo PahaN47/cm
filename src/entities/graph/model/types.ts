@@ -1,5 +1,7 @@
 export type AttributeType = 'string' | 'int' | 'float';
 
+export type ElementType = 'vertex' | 'edge' | 'metavertex' | 'metaedge';
+
 export interface AttributeValue {
     value: string | number;
     type: AttributeType;
@@ -8,7 +10,7 @@ export interface AttributeValue {
 
 export interface BaseElement {
     id: string;
-    type: 'vertex' | 'edge' | 'metavertex' | 'metaedge';
+    type: ElementType;
     attributes: Record<string, AttributeValue>;
 }
 
@@ -54,7 +56,7 @@ export interface ParsedGraph {
 
 export interface SerializedElement {
     id: string;
-    type: 'vertex' | 'edge' | 'metavertex' | 'metaedge';
+    type: ElementType;
     attributes: Record<string, AttributeValue>;
     source?: string;
     target?: string;

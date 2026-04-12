@@ -2,15 +2,15 @@ import React from 'react';
 
 import { Radio } from '@/shared/ui/Radio';
 
-export interface TabDefinition {
-    id: string;
+export interface TabDefinition<T extends string = string> {
+    id: T;
     label: React.ReactNode;
     component: React.ReactNode;
 }
 
-interface UseTabsOptions {
-    tabs: TabDefinition[];
-    defaultTab?: string;
+interface UseTabsOptions<T extends string = string> {
+    tabs: TabDefinition<T>[];
+    defaultTab?: T;
 }
 
 export interface TabControlsProps {
@@ -20,8 +20,13 @@ export interface TabControlsProps {
     className?: string;
 }
 
-export const useTabs = ({ tabs, defaultTab }: UseTabsOptions) => {
-    const [activeTab, setActiveTab] = React.useState(defaultTab ?? tabs[0]?.id);
+export const useTabs = <T extends string>({
+    tabs,
+    defaultTab,
+}: UseTabsOptions<T>) => {
+    const [activeTab, setActiveTab] = React.useState<T>(
+        defaultTab ?? tabs[0]?.id,
+    );
 
     const tabsRef = React.useRef(tabs);
     tabsRef.current = tabs;
@@ -32,7 +37,11 @@ export const useTabs = ({ tabs, defaultTab }: UseTabsOptions) => {
     const TabControls = React.useMemo<React.FC<TabControlsProps>>(() => {
         return function TabControls(props) {
             return (
-                <Radio value={activeTabRef.current} onChange={setActiveTab} {...props}>
+                <Radio
+                    value={activeTabRef.current}
+                    onChange={setActiveTab}
+                    {...props}
+                >
                     {tabsRef.current.map((tab) => (
                         <Radio.Option key={tab.id} value={tab.id}>
                             {tab.label}
@@ -45,7 +54,9 @@ export const useTabs = ({ tabs, defaultTab }: UseTabsOptions) => {
 
     const TabPanel = React.useMemo<React.FC>(() => {
         return function TabPanel() {
-            const active = tabsRef.current.find((t) => t.id === activeTabRef.current);
+            const active = tabsRef.current.find(
+                (t) => t.id === activeTabRef.current,
+            );
             return <>{active?.component ?? null}</>;
         };
     }, []);

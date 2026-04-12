@@ -7,7 +7,12 @@ import {
     useSyncExternalStore,
 } from 'react';
 import type { GraphStore } from './graphStore';
-import type { GraphElement, RelationType, SerializedElement } from './types';
+import type {
+    ElementType,
+    GraphElement,
+    RelationType,
+    SerializedElement,
+} from './types';
 import { createGraphParser, type GraphParser } from './parseState';
 
 interface GraphContextValue {
@@ -35,10 +40,7 @@ export function GraphStateProvider({
 
     const parser = parserRef.current!;
 
-    const elements = useSyncExternalStore(
-        store.subscribe,
-        parser.getSnapshot,
-    );
+    const elements = useSyncExternalStore(store.subscribe, parser.getSnapshot);
 
     const value = useMemo<GraphContextValue>(
         () => ({ elements, store, getElementById: parser.getElementById }),
@@ -54,8 +56,15 @@ export function GraphStateProvider({
 
 function useGraphContext(): GraphContextValue {
     const ctx = useContext(GraphStateContext);
-    if (!ctx) throw new Error('useGraphState/useGraphElement must be used within GraphStateProvider');
+    if (!ctx)
+        throw new Error(
+            'useGraphState/useGraphElement must be used within GraphStateProvider',
+        );
     return ctx;
+}
+
+export function useGraphStore(): GraphStore {
+    return useGraphContext().store;
 }
 
 export function useGraphState(): SerializedElement[] {
@@ -63,9 +72,26 @@ export function useGraphState(): SerializedElement[] {
 }
 
 export function useGraphElement(id: string) {
-    const { store, getElementById } = useGraphContext();
+    const { store, elements, getElementById } = useGraphContext();
 
     const element = getElementById(id);
+
+    const availableChildren = useMemo(() => {
+        if (element?.type === 'vertex' || element?.type === 'edge') {
+            return [];
+        }
+        return elements.filter((el) => el.id !== id).map((el) => el.id);
+    }, [element?.type, elements, id]);
+
+    const availableParents = useMemo(() => {
+        return elements
+            .filter(
+                ({ id: elId, type }) =>
+                    (type === 'metavertex' || type === 'metaedge') &&
+                    elId !== id,
+            )
+            .map(({ id }) => id);
+    }, [elements, id]);
 
     const update = useCallback(
         (patch: Partial<GraphElement>) => {
@@ -79,18 +105,42 @@ export function useGraphElement(id: string) {
     }, [store, id]);
 
     const addRelation = useCallback(
-        (type: RelationType, toElement: GraphElement) => {
-            store.addRelation(type, id, toElement);
+        (type: RelationType, toId: string) => {
+            store.addRelationById(type, id, toId);
         },
         [store, id],
     );
 
     const removeRelation = useCallback(
-        (type: RelationType, toElement: GraphElement) => {
-            store.removeRelation(type, id, toElement);
+        (type: RelationType, toId: string) => {
+            store.removeRelationById(type, id, toId);
         },
         [store, id],
     );
 
-    return { element, update, remove, addRelation, removeRelation };
+    const setRelations = useCallback(
+        (type: RelationType, toIds: string[]) => {
+            store.setRelations(type, id, toIds);
+        },
+        [store, id],
+    );
+
+    const changeType = useCallback(
+        (newType: ElementType) => {
+            store.changeElementType(id, newType);
+        },
+        [store, id],
+    );
+
+    return {
+        element,
+        availableChildren,
+        availableParents,
+        update,
+        remove,
+        changeType,
+        addRelation,
+        removeRelation,
+        setRelations,
+    };
 }

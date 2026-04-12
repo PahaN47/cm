@@ -1,0 +1,40 @@
+@import '@/shared/styles';
+
+.Select {
+    position: relative;
+    width: 100%;
+
+    &__dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 10;
+        margin-top: $spacing-1;
+        padding: $spacing-1 0;
+        background: $color-bg-elevated;
+        border: 1px solid $color-border-light;
+        border-radius: $radius-md;
+        list-style: none;
+        max-height: 180px;
+        overflow-y: auto;
+    }
+
+    &__option {
+        padding: $spacing-1 $spacing-3;
+        @include text-xs;
+        font-weight: 600;
+        color: $color-text-secondary;
+        cursor: pointer;
+        @include transition;
+
+        &:hover {
+            background: $color-accent-muted;
+            color: $color-text-primary;
+        }
+
+        &_selected {
+            color: $color-accent;
+        }
+    }
+}

@@ -41,10 +41,10 @@ const RadioOption = ({
 
 type OptionElement = React.ReactElement<RadioOptionProps, typeof RadioOption>;
 
-interface RadioProps {
-    value?: string;
+interface RadioProps<T extends string = string> {
+    value?: T;
     name?: string;
-    onChange?: (value: string) => void;
+    onChange?: (value: T) => void;
     size?: 's' | 'm' | 'l';
     color?: 'default' | 'accent';
     disabled?: boolean;
@@ -54,7 +54,7 @@ interface RadioProps {
 
 let radioId = 0;
 
-const Radio = ({
+const Radio = <T extends string = string>({
     value,
     name,
     onChange,
@@ -63,7 +63,7 @@ const Radio = ({
     disabled,
     className,
     children,
-}: RadioProps) => {
+}: RadioProps<T>) => {
     const groupName = React.useMemo(() => name ?? `radio-${++radioId}`, [name]);
 
     const options = React.Children.map(children, (child) => {
@@ -72,12 +72,15 @@ const Radio = ({
             name: groupName,
             selected: optionValue === value,
             disabled,
-            onChange: () => onChange?.(optionValue),
+            onChange: () => onChange?.(optionValue as T),
         });
     });
 
     return (
-        <div className={b({ size, color, disabled }, className)} role="radiogroup">
+        <div
+            className={b({ size, color, disabled }, className)}
+            role="radiogroup"
+        >
             {options}
         </div>
     );

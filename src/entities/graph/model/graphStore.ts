@@ -1,6 +1,7 @@
 import type {
     GraphElement,
     EdgeElement,
+    ElementType,
     ParsedGraph,
     RelationType,
 } from './types';
@@ -137,6 +138,76 @@ export class GraphStore {
         this.notify();
     }
 
+    changeElementType(id: string, newType: ElementType): void {
+        const oldElement = this.elements.get(id);
+        if (!oldElement || oldElement.type === newType) return;
+
+        const wasEdge = this.isEdge(oldElement);
+        const willBeEdge = newType === 'edge' || newType === 'metaedge';
+
+        let newElement: GraphElement;
+        if (willBeEdge) {
+            newElement = {
+                id: oldElement.id,
+                type: newType,
+                attributes: oldElement.attributes,
+                source: wasEdge ? oldElement.source : '',
+                target: wasEdge ? oldElement.target : '',
+                directed:
+                    newType === 'metaedge'
+                        ? true
+                        : wasEdge
+                          ? oldElement.directed
+                          : false,
+            } as GraphElement;
+        } else {
+            newElement = {
+                id: oldElement.id,
+                type: newType,
+                attributes: oldElement.attributes,
+            } as GraphElement;
+        }
+
+        this.elements.set(id, newElement);
+
+        for (const map of [
+            this.nodeEdges,
+            this.parentChildren,
+            this.childParents,
+        ]) {
+            for (const set of map.values()) {
+                if (set.has(oldElement)) {
+                    set.delete(oldElement);
+                    set.add(newElement);
+                }
+            }
+        }
+
+        if (wasEdge && !willBeEdge) {
+            this.removeFromRelationSet(
+                'nodeEdges',
+                oldElement.source,
+                newElement,
+            );
+            this.removeFromRelationSet(
+                'nodeEdges',
+                oldElement.target,
+                newElement,
+            );
+        }
+
+        if (willBeEdge && !wasEdge) {
+            const newEdge = newElement as EdgeElement;
+            if (newEdge.source)
+                this.addToRelationSet('nodeEdges', newEdge.source, newElement);
+            if (newEdge.target)
+                this.addToRelationSet('nodeEdges', newEdge.target, newElement);
+        }
+
+        this.markDirty(id);
+        this.notify();
+    }
+
     getElement(id: string): GraphElement | undefined {
         return this.elements.get(id);
     }
@@ -160,6 +231,86 @@ export class GraphStore {
     ): void {
         this.removeFromRelationSet(type, fromId, toElement);
         this.markDirty(fromId, toElement.id);
+        this.notify();
+    }
+
+    addRelationById(type: RelationType, fromId: string, toId: string): void {
+        const toElement = this.elements.get(toId);
+        if (!toElement) return;
+
+        this.addToRelationSet(type, fromId, toElement);
+
+        if (type === 'parentChildren') {
+            const fromElement = this.elements.get(fromId);
+            if (fromElement)
+                this.addToRelationSet('childParents', toId, fromElement);
+        } else if (type === 'childParents') {
+            const fromElement = this.elements.get(fromId);
+            if (fromElement)
+                this.addToRelationSet('parentChildren', toId, fromElement);
+        }
+
+        this.markDirty(fromId, toId);
+        this.notify();
+    }
+
+    removeRelationById(
+        type: RelationType,
+        fromId: string,
+        toId: string,
+    ): void {
+        const toElement = this.elements.get(toId);
+        if (!toElement) return;
+
+        this.removeFromRelationSet(type, fromId, toElement);
+
+        if (type === 'parentChildren') {
+            const fromElement = this.elements.get(fromId);
+            if (fromElement)
+                this.removeFromRelationSet('childParents', toId, fromElement);
+        } else if (type === 'childParents') {
+            const fromElement = this.elements.get(fromId);
+            if (fromElement)
+                this.removeFromRelationSet('parentChildren', toId, fromElement);
+        }
+
+        this.markDirty(fromId, toId);
+        this.notify();
+    }
+
+    setRelations(type: RelationType, fromId: string, toIds: string[]): void {
+        const fromElement = this.elements.get(fromId);
+        if (!fromElement) return;
+
+        const map = this.relationMap(type);
+        const dirty = [fromId];
+
+        const currentSet = map.get(fromId);
+        if (currentSet) {
+            for (const el of currentSet) {
+                dirty.push(el.id);
+                if (type === 'parentChildren') {
+                    this.removeFromRelationSet('childParents', el.id, fromElement);
+                } else if (type === 'childParents') {
+                    this.removeFromRelationSet('parentChildren', el.id, fromElement);
+                }
+            }
+            map.delete(fromId);
+        }
+
+        for (const toId of toIds) {
+            const toElement = this.elements.get(toId);
+            if (!toElement) continue;
+            this.addToRelationSet(type, fromId, toElement);
+            dirty.push(toId);
+            if (type === 'parentChildren') {
+                this.addToRelationSet('childParents', toId, fromElement);
+            } else if (type === 'childParents') {
+                this.addToRelationSet('parentChildren', toId, fromElement);
+            }
+        }
+
+        this.markDirty(...dirty);
         this.notify();
     }
 
