@@ -2,7 +2,6 @@ import { useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import { Form } from '@/shared/ui/Form';
-import { Input } from '@/shared/ui/Input';
 import { Checkbox } from '@/shared/ui/Checkbox';
 import { Button } from '@/shared/ui/Button';
 
@@ -11,6 +10,7 @@ import { RelationFields } from './RelationFields';
 import { buildAttributeDefaults, parseFormAttributes } from './utils';
 import type { AttributeFormField, ElementFormProps } from './types';
 import { FormHistoryWatch } from '@/shared/ui/FormHistoryWatch';
+import { Select } from '@/shared/ui/Select';
 
 interface MetaEdgeFormValues {
     source: string;
@@ -43,6 +43,7 @@ export const MetaEdgeForm = ({
     element,
     childrenOptions,
     parentOptions,
+    vertexOptions,
     onSubmit,
     submitLabel = 'Применить',
 }: ElementFormProps) => {
@@ -53,6 +54,14 @@ export const MetaEdgeForm = ({
 
     const { control, watch, register, handleSubmit, reset, setValue } =
         useForm<MetaEdgeFormValues>({ defaultValues });
+
+    const vertexOptionNodes = useMemo(
+        () =>
+            vertexOptions.map((option) => (
+                <Select.Option key={option}>{option}</Select.Option>
+            )),
+        [vertexOptions],
+    );
 
     const children = watch('children');
     const parents = watch('parents');
@@ -92,17 +101,43 @@ export const MetaEdgeForm = ({
                 elementId={element.id}
             />
             <Form.Group>
-                <Form.Field
-                    label="Источник"
-                    component={Input}
-                    size="s"
-                    {...register('source')}
+                <Controller
+                    name="source"
+                    control={control}
+                    render={({ field }) => (
+                        <Form.Field
+                            label="Источник"
+                            component={Select}
+                            size="s"
+                            name={field.name}
+                            value={field.value}
+                            onChange={(
+                                e: React.ChangeEvent<HTMLInputElement>,
+                            ) => field.onChange(e.target.value)}
+                            onBlur={field.onBlur}
+                        >
+                            {vertexOptionNodes}
+                        </Form.Field>
+                    )}
                 />
-                <Form.Field
-                    label="Цель"
-                    component={Input}
-                    size="s"
-                    {...register('target')}
+                <Controller
+                    name="target"
+                    control={control}
+                    render={({ field }) => (
+                        <Form.Field
+                            label="Цель"
+                            component={Select}
+                            size="s"
+                            name={field.name}
+                            value={field.value}
+                            onChange={(
+                                e: React.ChangeEvent<HTMLInputElement>,
+                            ) => field.onChange(e.target.value)}
+                            onBlur={field.onBlur}
+                        >
+                            {vertexOptionNodes}
+                        </Form.Field>
+                    )}
                 />
                 <Form.Field
                     label="Направлен"

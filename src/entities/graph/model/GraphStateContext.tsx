@@ -67,8 +67,15 @@ export function useGraphStore(): GraphStore {
     return useGraphContext().store;
 }
 
-export function useGraphState(): SerializedElement[] {
-    return useGraphContext().elements;
+export function useGraphState(type?: ElementType): SerializedElement[] {
+    const { elements } = useGraphContext();
+
+    return useMemo(() => {
+        if (type) {
+            return elements.filter((element) => element.type === type);
+        }
+        return elements;
+    }, [elements, type]);
 }
 
 export function useGraphElement(id: string) {

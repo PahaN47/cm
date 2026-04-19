@@ -1,7 +1,8 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
 import {
     useGraphElement,
+    useGraphState,
     type ElementSnapshot,
     type ElementType,
     type GraphElement,
@@ -63,6 +64,13 @@ export const ElementEditor = ({
         changeType,
         setRelations,
     } = useGraphElement(elementId);
+
+    const vertices = useGraphState('vertex');
+    const metavertices = useGraphState('metavertex');
+
+    const vertexOptions = useMemo(() => {
+        return [...vertices, ...metavertices].map(({ id }) => id);
+    }, [vertices, metavertices]);
 
     const { pushUndo } = useHistory();
     const log = useActivityLog();
@@ -189,6 +197,7 @@ export const ElementEditor = ({
                 onSubmit={handleFormSubmit}
                 childrenOptions={availableChildren}
                 parentOptions={availableParents}
+                vertexOptions={vertexOptions}
             />
             <Form.Divider />
             <Form.Group>

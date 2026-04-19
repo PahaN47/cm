@@ -19,6 +19,7 @@ export interface ElementFormProps {
     element: SerializedElement;
     childrenOptions: string[];
     parentOptions: string[];
+    vertexOptions: string[];
     onSubmit: (data: ElementFormSubmitData) => void;
     submitLabel?: string;
 }

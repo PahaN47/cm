@@ -65,6 +65,13 @@ export const ElementCreator = ({ onSubmit }: ElementCreatorProps) => {
             .map(({ id }) => id);
     }, [elements]);
 
+    const vertices = useGraphState('vertex');
+    const metavertices = useGraphState('metavertex');
+
+    const vertexOptions = useMemo(() => {
+        return [...vertices, ...metavertices].map(({ id }) => id);
+    }, [vertices, metavertices]);
+
     const [id, setId] = useState('');
     const [type, setType] = useState<ElementType>('vertex');
     const [formKey, setFormKey] = useState(0);
@@ -137,6 +144,7 @@ export const ElementCreator = ({ onSubmit }: ElementCreatorProps) => {
                 submitLabel="Создать"
                 childrenOptions={childrenOptions}
                 parentOptions={parentOptions}
+                vertexOptions={vertexOptions}
             />
         </>
     );
