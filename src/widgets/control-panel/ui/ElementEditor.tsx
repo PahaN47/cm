@@ -172,7 +172,7 @@ export const ElementEditor = ({
                     disabled
                 />
                 <Form.Field
-                    label="Type"
+                    label="Тип"
                     component={Select}
                     size="s"
                     value={displayType}
@@ -199,7 +199,7 @@ export const ElementEditor = ({
                     color="accent"
                     onClick={handleDelete}
                 >
-                    Delete element
+                    Удалить элемент
                 </Button>
             </Form.Group>
         </>

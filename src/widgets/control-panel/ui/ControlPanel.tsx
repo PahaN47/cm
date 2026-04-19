@@ -19,7 +19,11 @@ const EditTab = ({
     setSelectedElementId: (elementId: string | null) => void;
 }) => {
     if (!selectedElementId) {
-        return <div className={b('empty')}>Select an element to edit</div>;
+        return (
+            <div className={b('empty')}>
+                Выберите элемент для редактирования
+            </div>
+        );
     }
     return (
         <ElementEditor
@@ -57,7 +61,7 @@ export const ControlPanel = ({
         tabs: [
             {
                 id: 'edit',
-                label: 'Element',
+                label: 'Элемент',
                 component: (
                     <EditTab
                         selectedElementId={selectedElementId}
@@ -67,7 +71,7 @@ export const ControlPanel = ({
             },
             {
                 id: 'create',
-                label: 'Create',
+                label: 'Создать',
                 component: (
                     <CreateTab
                         onSubmit={(createdId) => {

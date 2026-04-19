@@ -58,7 +58,7 @@ export const RelationFields = ({
             size: 's',
             value: newId,
             onChange: handleInputChange,
-            placeholder: 'Element ID',
+            placeholder: 'ID элемента',
             style: { flex: 1, minWidth: 0 },
         };
 
@@ -126,7 +126,7 @@ export const RelationFields = ({
                         >
                             {renderInput()}
                             <Button type="button" size="s" onClick={handleAdd}>
-                                Add
+                                Добавить
                             </Button>
                         </div>
                     </Form.Group>

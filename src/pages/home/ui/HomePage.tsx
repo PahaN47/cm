@@ -79,9 +79,7 @@ const HomeContent = ({
                         )
                     }
                 >
-                    {theme === Theme.Light
-                        ? 'Switch to Dark'
-                        : 'Switch to Light'}
+                    Тема
                 </Button>
             </Layout.Panel>
         </Layout>

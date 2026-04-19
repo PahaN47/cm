@@ -21,7 +21,7 @@ export const MetaVertexForm = ({
     childrenOptions,
     parentOptions,
     onSubmit,
-    submitLabel = 'Apply',
+    submitLabel = 'Применить',
 }: ElementFormProps) => {
     const defaultValues = useMemo<MetaVertexFormValues>(
         () => ({
@@ -85,7 +85,7 @@ export const MetaVertexForm = ({
                 control={control}
                 render={({ field }) => (
                     <RelationFields
-                        label="Children"
+                        label="Потомки"
                         value={field.value}
                         onChange={field.onChange}
                         options={filteredChildrenOptions}
@@ -98,7 +98,7 @@ export const MetaVertexForm = ({
                 control={control}
                 render={({ field }) => (
                     <RelationFields
-                        label="Parents"
+                        label="Родители"
                         value={field.value}
                         onChange={field.onChange}
                         options={filteredParentOptions}

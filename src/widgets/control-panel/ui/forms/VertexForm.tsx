@@ -20,7 +20,7 @@ export const VertexForm = ({
     element,
     parentOptions,
     onSubmit,
-    submitLabel = 'Apply',
+    submitLabel = 'Применить',
 }: ElementFormProps) => {
     const defaultValues = useMemo<VertexFormValues>(
         () => ({
@@ -77,7 +77,7 @@ export const VertexForm = ({
                 control={control}
                 render={({ field }) => (
                     <RelationFields
-                        label="Parents"
+                        label="Родители"
                         value={field.value}
                         onChange={field.onChange}
                         options={filteredParentOptions}

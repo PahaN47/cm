@@ -116,7 +116,7 @@ export const ElementCreator = ({ onSubmit }: ElementCreatorProps) => {
                     }
                 />
                 <Form.Field
-                    label="Type"
+                    label="Тип"
                     component={Select}
                     size="s"
                     value={type}
@@ -134,7 +134,7 @@ export const ElementCreator = ({ onSubmit }: ElementCreatorProps) => {
                 key={formKey}
                 element={emptyElement}
                 onSubmit={handleCreate}
-                submitLabel="Create"
+                submitLabel="Создать"
                 childrenOptions={childrenOptions}
                 parentOptions={parentOptions}
             />

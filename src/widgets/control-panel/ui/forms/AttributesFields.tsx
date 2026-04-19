@@ -145,7 +145,7 @@ export const AttributesFields = <T extends FieldValues>({
             )}
             <Form.Group>
                 <Form.Field
-                    label="Label"
+                    label="Название"
                     component={Input}
                     size="s"
                     value={newLabel}
@@ -154,7 +154,7 @@ export const AttributesFields = <T extends FieldValues>({
                     }
                 />
                 <Form.Field
-                    label="Type"
+                    label="Тип"
                     component={Select}
                     size="s"
                     value={newType}
@@ -165,7 +165,7 @@ export const AttributesFields = <T extends FieldValues>({
                     ))}
                 </Form.Field>
                 <Button type="button" size="s" onClick={handleAdd}>
-                    Add attribute
+                    Добавить атрибут
                 </Button>
             </Form.Group>
         </>

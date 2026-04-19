@@ -45,7 +45,7 @@ export const EdgeForm = ({
     element,
     parentOptions,
     onSubmit,
-    submitLabel = 'Apply',
+    submitLabel = 'Применить',
 }: ElementFormProps) => {
     const defaultValues = useMemo<EdgeFormValues>(
         () => buildDefaults(element),
@@ -126,7 +126,7 @@ export const EdgeForm = ({
                 control={control}
                 render={({ field }) => (
                     <RelationFields
-                        label="Parents"
+                        label="Родители"
                         value={field.value}
                         onChange={field.onChange}
                         options={filteredParentOptions}

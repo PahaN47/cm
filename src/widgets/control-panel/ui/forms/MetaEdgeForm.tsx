@@ -44,7 +44,7 @@ export const MetaEdgeForm = ({
     childrenOptions,
     parentOptions,
     onSubmit,
-    submitLabel = 'Apply',
+    submitLabel = 'Применить',
 }: ElementFormProps) => {
     const defaultValues = useMemo<MetaEdgeFormValues>(
         () => buildDefaults(element),
@@ -122,7 +122,7 @@ export const MetaEdgeForm = ({
                 control={control}
                 render={({ field }) => (
                     <RelationFields
-                        label="Children"
+                        label="Потомки"
                         value={field.value}
                         onChange={field.onChange}
                         options={filteredChildrenOptions}
@@ -135,7 +135,7 @@ export const MetaEdgeForm = ({
                 control={control}
                 render={({ field }) => (
                     <RelationFields
-                        label="Parents"
+                        label="Родители"
                         value={field.value}
                         onChange={field.onChange}
                         options={filteredParentOptions}
