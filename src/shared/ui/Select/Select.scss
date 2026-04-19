@@ -12,8 +12,8 @@
         z-index: 10;
         margin-top: $spacing-1;
         padding: $spacing-1 0;
-        background: $color-bg-elevated;
-        border: 1px solid $color-border-light;
+        background: var(--color-bg-elevated);
+        border: 1px solid var(--color-border-light);
         border-radius: $radius-md;
         list-style: none;
         max-height: 180px;
@@ -24,17 +24,17 @@
         padding: $spacing-1 $spacing-3;
         @include text-xs;
         font-weight: 600;
-        color: $color-text-secondary;
+        color: var(--color-text-secondary);
         cursor: pointer;
         @include transition;
 
         &:hover {
-            background: $color-accent-muted;
-            color: $color-text-primary;
+            background: var(--color-accent-muted);
+            color: var(--color-text-primary);
         }
 
         &_selected {
-            color: $color-accent;
+            color: var(--color-accent);
         }
     }
 }

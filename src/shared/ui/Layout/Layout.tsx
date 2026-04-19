@@ -8,12 +8,14 @@ const b = cn('Layout');
 
 export interface LayoutPanelProps {
     className?: string;
+    style?: React.CSSProperties;
     row?: number | [start: number, end: number];
     col?: number | [start: number, end: number];
 }
 
 const LayoutPanel = ({
     className,
+    style,
     row = 1,
     col = 1,
     children,
@@ -29,6 +31,7 @@ const LayoutPanel = ({
             className={b('panel', className)}
             style={{
                 gridArea: `${rowStart} / ${colStart} / ${rowEnd + 1} / ${colEnd + 1}`,
+                ...style,
             }}
         >
             {children}

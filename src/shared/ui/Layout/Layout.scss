@@ -8,10 +8,11 @@
     width: 100vw;
     height: 100vh;
     padding: $spacing-2;
-    background: $color-accent;
+    color: var(--color-text-primary);
+    background: var(--color-accent);
 
     &__panel {
-        background: $color-bg-primary;
-        border: 2px solid $color-border;
+        background: var(--color-bg-primary);
+        border: 2px solid var(--color-border);
     }
 }

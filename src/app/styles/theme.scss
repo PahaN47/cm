@@ -1,0 +1,34 @@
+@import '@/shared/styles/variables';
+
+.theme-provider {
+    &_theme {
+        &_light {
+            --color-bg-primary: #{$light-color-bg-primary};
+            --color-bg-secondary: #{$light-color-bg-secondary};
+            --color-bg-elevated: #{$light-color-bg-elevated};
+            --color-border: #{$light-color-border};
+            --color-border-light: #{$light-color-border-light};
+            --color-text-muted: #{$light-color-text-muted};
+            --color-text-secondary: #{$light-color-text-secondary};
+            --color-text-primary: #{$light-color-text-primary};
+            --color-accent: #{$light-color-accent};
+            --color-accent-hover: #{$light-color-accent-hover};
+            --color-accent-muted: #{$light-color-accent-muted};
+            --color-error: #{$light-color-error};
+        }
+        &_dark {
+            --color-bg-primary: #{$color-bg-primary};
+            --color-bg-secondary: #{$color-bg-secondary};
+            --color-bg-elevated: #{$color-bg-elevated};
+            --color-border: #{$color-border};
+            --color-border-light: #{$color-border-light};
+            --color-text-muted: #{$color-text-muted};
+            --color-text-secondary: #{$color-text-secondary};
+            --color-text-primary: #{$color-text-primary};
+            --color-accent: #{$color-accent};
+            --color-accent-hover: #{$color-accent-hover};
+            --color-accent-muted: #{$color-accent-muted};
+            --color-error: #{$color-error};
+        }
+    }
+}

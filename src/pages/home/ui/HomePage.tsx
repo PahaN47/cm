@@ -15,6 +15,8 @@ import {
     useHistoryShortcuts,
 } from '@/features/history';
 import { ActivityLogProvider } from '@/features/activity-log';
+import { Theme, useTheme } from '@/app/theme';
+import { Button } from '@/shared/ui/Button';
 
 // Inner component so the shortcuts hook can sit inside both providers
 // (GraphStateProvider for the store, HistoryFormApplierProvider for the form
@@ -27,6 +29,7 @@ const HomeContent = ({
     setSelectedElementId: (id: string | null) => void;
 }) => {
     const { clearPendingFormHistory } = useHistory();
+    const { theme, setTheme } = useTheme();
 
     useHistoryShortcuts({ selectedElementId, setSelectedElementId });
 
@@ -64,7 +67,23 @@ const HomeContent = ({
                     setActiveTab={setActiveTab}
                 />
             </Layout.Panel>
-            <Layout.Panel row={[11, 12]} col={[1, 12]}></Layout.Panel>
+            <Layout.Panel
+                row={[11, 12]}
+                col={[1, 12]}
+                style={{ display: 'flex', alignItems: 'center', padding: 16 }}
+            >
+                <Button
+                    onClick={() =>
+                        setTheme(
+                            theme === Theme.Light ? Theme.Dark : Theme.Light,
+                        )
+                    }
+                >
+                    {theme === Theme.Light
+                        ? 'Switch to Dark'
+                        : 'Switch to Light'}
+                </Button>
+            </Layout.Panel>
         </Layout>
     );
 };

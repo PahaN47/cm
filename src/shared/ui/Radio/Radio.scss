@@ -29,7 +29,7 @@
         border-radius: 0;
         font-family: inherit;
         font-weight: 600;
-        color: $color-text-primary;
+        color: var(--color-text-primary);
         @include transition;
 
         &:first-child {
@@ -82,21 +82,21 @@
         &_default {
             #{$block}__option {
                 background: transparent;
-                border: 1px solid $color-border-light;
-                color: $color-text-primary;
+                border: 1px solid var(--color-border-light);
+                color: var(--color-text-primary);
 
                 &:hover:not(#{$block}__option_disabled) {
-                    border-color: $color-text-muted;
-                    background: $color-bg-elevated;
+                    border-color: var(--color-text-muted);
+                    background: var(--color-bg-elevated);
                 }
 
                 &_selected {
-                    background: $color-border;
-                    border-color: $color-border;
+                    background: var(--color-border);
+                    border-color: var(--color-border);
 
                     &:hover:not(#{$block}__option_disabled) {
-                        background: $color-border-light;
-                        border-color: $color-border-light;
+                        background: var(--color-border-light);
+                        border-color: var(--color-border-light);
                     }
                 }
             }
@@ -105,22 +105,22 @@
         &_accent {
             #{$block}__option {
                 background: transparent;
-                border: 1px solid $color-accent;
-                color: $color-accent;
+                border: 1px solid var(--color-accent);
+                color: var(--color-accent);
 
                 &:hover:not(#{$block}__option_disabled) {
-                    border-color: $color-accent-hover;
-                    background: $color-accent-muted;
+                    border-color: var(--color-accent-hover);
+                    background: var(--color-accent-muted);
                 }
 
                 &_selected {
-                    background: $color-accent;
-                    border-color: $color-accent;
-                    color: $color-bg-primary;
+                    background: var(--color-accent);
+                    border-color: var(--color-accent);
+                    color: var(--color-bg-primary);
 
                     &:hover:not(#{$block}__option_disabled) {
-                        background: $color-accent-hover;
-                        border-color: $color-accent-hover;
+                        background: var(--color-accent-hover);
+                        border-color: var(--color-accent-hover);
                     }
                 }
             }

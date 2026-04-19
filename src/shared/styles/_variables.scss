@@ -12,6 +12,23 @@ $color-text-primary: #e4e4e4;
 $color-accent: #5eaeff;
 $color-accent-hover: #7dc0ff;
 $color-accent-muted: rgba(94, 174, 255, 0.15);
+$color-error: #ff5e5e;
+
+// ── Light Theme: Grayscale ───────────────────────────────────────────────────
+$light-color-bg-primary: #fafafa;
+$light-color-bg-secondary: #f1f1f1;
+$light-color-bg-elevated: #ffffff;
+$light-color-border: #d9d9d9;
+$light-color-border-light: #bfbfbf;
+$light-color-text-muted: #8a8a8a;
+$light-color-text-secondary: #555555;
+$light-color-text-primary: #1c1c1c;
+
+// ── Light Theme: Accent ──────────────────────────────────────────────────────
+$light-color-accent: #2680e6;
+$light-color-accent-hover: #1769c2;
+$light-color-accent-muted: rgba(38, 128, 230, 0.12);
+$light-color-error: #ff5e5e;
 
 // ── Spacing ──────────────────────────────────────────────────────────────────
 $spacing-1: 4px;
@@ -33,5 +50,6 @@ $radius-xl: 16px;
 $radius-full: 9999px;
 
 // ── Typography ───────────────────────────────────────────────────────────────
-$font-family: 'JetBrains Mono', 'Fira Code', 'Source Code Pro',
-    ui-monospace, Menlo, Consolas, monospace;
+$font-family:
+    'JetBrains Mono', 'Fira Code', 'Source Code Pro', ui-monospace, Menlo,
+    Consolas, monospace;
