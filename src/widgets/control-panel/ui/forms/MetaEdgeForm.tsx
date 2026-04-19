@@ -93,19 +93,19 @@ export const MetaEdgeForm = ({
             />
             <Form.Group>
                 <Form.Field
-                    label="Source"
+                    label="Источник"
                     component={Input}
                     size="s"
                     {...register('source')}
                 />
                 <Form.Field
-                    label="Target"
+                    label="Цель"
                     component={Input}
                     size="s"
                     {...register('target')}
                 />
                 <Form.Field
-                    label="Directed"
+                    label="Направленный"
                     component={Checkbox}
                     size="s"
                     checked
