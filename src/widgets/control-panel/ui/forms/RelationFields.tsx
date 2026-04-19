@@ -29,6 +29,7 @@ export const RelationFields = ({
 
     const handleAdd = useCallback(() => {
         const trimmed = newId.trim();
+
         if (!trimmed || value.includes(trimmed)) return;
         onChange([...value, trimmed]);
         setNewId('');
@@ -38,7 +39,7 @@ export const RelationFields = ({
         (id: string) => {
             onChange(value.filter((v) => v !== id));
         },
-        [value, onChange],
+        [onChange, value],
     );
 
     const handleInputChange = useCallback(

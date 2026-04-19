@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 
 import { Radio } from '@/shared/ui/Radio';
 
@@ -8,9 +8,16 @@ export interface TabDefinition<T extends string = string> {
     component: React.ReactNode;
 }
 
-interface UseTabsOptions<T extends string = string> {
+export interface UseTabOptions<T extends string = string> {
+    onSelect?: (tabId: T) => void;
+    activeTab?: T;
+    setActiveTab?: (tabId: T) => void;
+}
+
+interface UseTabsParams<T extends string = string> {
     tabs: TabDefinition<T>[];
     defaultTab?: T;
+    options?: UseTabOptions<T>;
 }
 
 export interface TabControlsProps {
@@ -23,9 +30,34 @@ export interface TabControlsProps {
 export const useTabs = <T extends string>({
     tabs,
     defaultTab,
-}: UseTabsOptions<T>) => {
+    options,
+}: UseTabsParams<T>) => {
+    const {
+        onSelect,
+        activeTab: propsActiveTab,
+        setActiveTab: propsSetActiveTab,
+    } = options ?? {};
+
     const [activeTab, setActiveTab] = React.useState<T>(
-        defaultTab ?? tabs[0]?.id,
+        propsActiveTab ?? defaultTab ?? tabs[0]?.id,
+    );
+
+    useEffect(() => {
+        if (propsActiveTab) {
+            setActiveTab(propsActiveTab);
+        }
+    }, [propsActiveTab]);
+
+    useEffect(() => {
+        propsSetActiveTab?.(activeTab);
+    }, [activeTab, propsSetActiveTab]);
+
+    const handleSelect = useCallback(
+        (tabId: T) => {
+            setActiveTab(tabId);
+            onSelect?.(tabId);
+        },
+        [onSelect],
     );
 
     const tabsRef = React.useRef(tabs);
@@ -39,7 +71,7 @@ export const useTabs = <T extends string>({
             return (
                 <Radio
                     value={activeTabRef.current}
-                    onChange={setActiveTab}
+                    onChange={handleSelect}
                     {...props}
                 >
                     {tabsRef.current.map((tab) => (
@@ -50,7 +82,7 @@ export const useTabs = <T extends string>({
                 </Radio>
             );
         };
-    }, []);
+    }, [handleSelect]);
 
     const TabPanel = React.useMemo<React.FC>(() => {
         return function TabPanel() {

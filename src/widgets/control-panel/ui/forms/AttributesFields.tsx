@@ -17,6 +17,7 @@ import Select from '@/shared/ui/Select/Select';
 
 import type { AttributeFormField } from './types';
 import { validateFloat, validateInt, validateString } from './validators';
+import { ActionNames, useActivityLog } from '@/features/activity-log';
 
 const formCn = cn('Form');
 
@@ -38,6 +39,8 @@ export const AttributesFields = <T extends FieldValues>({
     register,
     name,
 }: AttributesFieldsProps<T>) => {
+    const log = useActivityLog();
+
     const { errors } = useFormState<T>({
         control,
     });
@@ -51,6 +54,8 @@ export const AttributesFields = <T extends FieldValues>({
     const [newType, setNewType] = useState<AttributeType>('string');
 
     const handleAdd = useCallback(() => {
+        log(ActionNames.ADD_ATTRIBUTE, { label: newLabel, type: newType });
+
         const trimmed = newLabel.trim();
         if (!trimmed) return;
         append({
@@ -61,7 +66,7 @@ export const AttributesFields = <T extends FieldValues>({
         } as never);
         setNewLabel('');
         setNewType('string');
-    }, [append, newLabel, newType]);
+    }, [append, log, newLabel, newType]);
 
     const handleTypeChange = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {

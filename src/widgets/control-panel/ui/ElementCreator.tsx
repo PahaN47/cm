@@ -1,16 +1,17 @@
 import React, { useCallback, useMemo, useState } from 'react';
 
 import {
+    buildGraphElement,
     useGraphState,
     useGraphStore,
     type ElementType,
-    type GraphElement,
     type SerializedElement,
 } from '@/entities/graph';
-import { ELEMENT_TYPES } from '@/shared/contants/graph';
+import { ELEMENT_TYPES } from '@/shared/constants/graph';
 import { Form } from '@/shared/ui/Form';
 import { Input } from '@/shared/ui/Input';
 import Select from '@/shared/ui/Select/Select';
+import { useHistory } from '@/features/history';
 
 import {
     VertexForm,
@@ -20,6 +21,7 @@ import {
     type ElementFormProps,
     type ElementFormSubmitData,
 } from './forms';
+import { ActionNames, useActivityLog } from '@/features/activity-log';
 
 const FORM_MAP: Record<ElementType, React.ComponentType<ElementFormProps>> = {
     vertex: VertexForm,
@@ -41,38 +43,6 @@ function buildEmptyElement(type: ElementType): SerializedElement {
     };
 }
 
-function buildGraphElement(
-    id: string,
-    type: ElementType,
-    data: ElementFormSubmitData,
-): GraphElement {
-    const base = { id, attributes: data.attributes };
-
-    switch (type) {
-        case 'edge':
-            return {
-                ...base,
-                type: 'edge',
-                source: data.source ?? '',
-                target: data.target ?? '',
-                directed: data.directed ?? false,
-            };
-        case 'metaedge':
-            return {
-                ...base,
-                type: 'metaedge',
-                source: data.source ?? '',
-                target: data.target ?? '',
-                directed: true,
-            };
-        case 'metavertex':
-            return { ...base, type: 'metavertex' };
-        case 'vertex':
-        default:
-            return { ...base, type: 'vertex' };
-    }
-}
-
 interface ElementCreatorProps {
     onSubmit?: (elementId: string) => void;
 }
@@ -80,6 +50,8 @@ interface ElementCreatorProps {
 export const ElementCreator = ({ onSubmit }: ElementCreatorProps) => {
     const store = useGraphStore();
     const elements = useGraphState();
+    const { pushUndo } = useHistory();
+    const log = useActivityLog();
 
     const childrenOptions = useMemo(() => {
         return elements
@@ -102,6 +74,8 @@ export const ElementCreator = ({ onSubmit }: ElementCreatorProps) => {
     const handleCreate = useCallback(
         (data: ElementFormSubmitData) => {
             const trimmedId = id.trim();
+            log(ActionNames.CREATE_ELEMENT, { id: trimmedId, type, ...data });
+
             if (!trimmedId) return;
 
             store.addElement(buildGraphElement(trimmedId, type, data));
@@ -113,11 +87,18 @@ export const ElementCreator = ({ onSubmit }: ElementCreatorProps) => {
                 store.setRelations('childParents', trimmedId, data.parents);
             }
 
+            pushUndo({
+                type: 'add',
+                elementId: trimmedId,
+                elementType: type,
+                data,
+            });
+
             setId('');
             setFormKey((k) => k + 1);
             onSubmit?.(trimmedId);
         },
-        [id, store, type, onSubmit],
+        [log, id, store, type, pushUndo, onSubmit],
     );
 
     const FormComponent = FORM_MAP[type];
@@ -139,9 +120,9 @@ export const ElementCreator = ({ onSubmit }: ElementCreatorProps) => {
                     component={Select}
                     size="s"
                     value={type}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        setType(e.target.value as ElementType)
-                    }
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setType(e.target.value as ElementType);
+                    }}
                 >
                     {ELEMENT_TYPES.map((t) => (
                         <Select.Option key={t}>{t}</Select.Option>

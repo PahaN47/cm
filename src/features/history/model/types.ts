@@ -1,34 +1,43 @@
-import type { GraphElement } from '@/entities/graph';
+import type { ElementSnapshot, ElementType } from '@/entities/graph';
 
-export interface AddElementAction {
-    type: 'addElement';
-    element: GraphElement;
+export interface CreateElementAction {
+    type: 'add';
+    elementId: string;
+    elementType: ElementType;
+    data: ElementSnapshot;
 }
 
 export interface RemoveElementAction {
-    type: 'removeElement';
-    element: GraphElement;
+    type: 'remove';
+    elementId: string;
+    elementType: ElementType;
+    data: ElementSnapshot;
+}
+
+export interface UpdateFormAction {
+    type: 'update-form';
+    elementId: string;
+    data: Partial<ElementSnapshot>;
+    prevData: Partial<ElementSnapshot>;
 }
 
 export interface UpdateElementAction {
-    type: 'updateElement';
-    id: string;
-    before: Partial<GraphElement>;
-    after: Partial<GraphElement>;
+    type: 'update';
+    elementId: string;
+    data: ElementSnapshot;
+    prevData: ElementSnapshot;
 }
 
-export interface AddRelationAction {
-    type: 'addRelation';
-    relation: 'nodeEdges' | 'parentChildren' | 'childParents';
-    fromId: string;
-    toElementId: string;
-}
-
-export interface RemoveRelationAction {
-    type: 'removeRelation';
-    relation: 'nodeEdges' | 'parentChildren' | 'childParents';
-    fromId: string;
-    toElementId: string;
+// Combined "change type + apply form values". The data/prevData on each side
+// match that side's element type (e.g. prevData may carry source/target while
+// data does not, when going edge → vertex).
+export interface ChangeTypeAction {
+    type: 'change-type';
+    elementId: string;
+    prevType: ElementType;
+    nextType: ElementType;
+    data: ElementSnapshot;
+    prevData: ElementSnapshot;
 }
 
 export interface BatchAction {
@@ -37,15 +46,17 @@ export interface BatchAction {
 }
 
 export type ActionDescriptor =
-    | AddElementAction
+    | CreateElementAction
     | RemoveElementAction
+    | UpdateFormAction
     | UpdateElementAction
-    | AddRelationAction
-    | RemoveRelationAction
+    | ChangeTypeAction
     | BatchAction;
 
 export interface HistoryState {
     undoStack: ActionDescriptor[];
     redoStack: ActionDescriptor[];
+    nextUndo: ActionDescriptor | null;
+    nextRedo: ActionDescriptor | null;
     maxLength: number;
 }

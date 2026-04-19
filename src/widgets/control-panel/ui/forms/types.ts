@@ -1,6 +1,6 @@
 import type {
     AttributeType,
-    AttributeValue,
+    ElementSnapshot,
     SerializedElement,
 } from '@/entities/graph';
 
@@ -11,14 +11,9 @@ export interface AttributeFormField {
     value: string;
 }
 
-export interface ElementFormSubmitData {
-    attributes: Record<string, AttributeValue>;
-    children: string[];
-    parents: string[];
-    source?: string;
-    target?: string;
-    directed?: boolean;
-}
+// Form-submit payload is structurally identical to a snapshot of an element's
+// editable state, so we alias rather than duplicate.
+export type ElementFormSubmitData = ElementSnapshot;
 
 export interface ElementFormProps {
     element: SerializedElement;

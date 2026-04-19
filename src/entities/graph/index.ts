@@ -7,6 +7,7 @@ export {
     useGraphElement,
 } from './model';
 export { parseMetagraphXml } from './lib/parseMetagraphXml';
+export { buildGraphElement } from './lib/buildGraphElement';
 export type {
     AttributeType,
     AttributeValue,
@@ -23,4 +24,5 @@ export type {
     ParsedRelation,
     ParsedGraph,
     SerializedElement,
+    ElementSnapshot,
 } from './model';

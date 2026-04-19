@@ -10,6 +10,7 @@ import { AttributesFields } from './AttributesFields';
 import { RelationFields } from './RelationFields';
 import { buildAttributeDefaults, parseFormAttributes } from './utils';
 import type { AttributeFormField, ElementFormProps } from './types';
+import { FormHistoryWatch } from '@/shared/ui/FormHistoryWatch';
 
 interface EdgeFormValues {
     source: string;
@@ -51,7 +52,7 @@ export const EdgeForm = ({
         [element],
     );
 
-    const { control, watch, register, handleSubmit, reset } =
+    const { control, watch, register, handleSubmit, reset, setValue } =
         useForm<EdgeFormValues>({
             defaultValues,
         });
@@ -83,6 +84,11 @@ export const EdgeForm = ({
 
     return (
         <Form onSubmit={handleFormSubmit}>
+            <FormHistoryWatch
+                control={control}
+                setValue={setValue}
+                elementId={element.id}
+            />
             <Form.Group>
                 <Form.Field
                     label="Source"

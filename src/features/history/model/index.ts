@@ -3,16 +3,18 @@ export {
     pushUndo,
     undo,
     redo,
+    clearPendingFormHistory,
     clearHistory,
     setMaxLength,
 } from './historySlice';
 export type {
     ActionDescriptor,
-    AddElementAction,
+    CreateElementAction,
+    CreateElementAction as AddElementAction,
     RemoveElementAction,
+    UpdateFormAction,
     UpdateElementAction,
-    AddRelationAction,
-    RemoveRelationAction,
+    ChangeTypeAction,
     BatchAction,
     HistoryState,
 } from './types';

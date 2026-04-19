@@ -10,6 +10,7 @@ import { AttributesFields } from './AttributesFields';
 import { RelationFields } from './RelationFields';
 import { buildAttributeDefaults, parseFormAttributes } from './utils';
 import type { AttributeFormField, ElementFormProps } from './types';
+import { FormHistoryWatch } from '@/shared/ui/FormHistoryWatch';
 
 interface MetaEdgeFormValues {
     source: string;
@@ -50,7 +51,7 @@ export const MetaEdgeForm = ({
         [element],
     );
 
-    const { control, watch, register, handleSubmit, reset } =
+    const { control, watch, register, handleSubmit, reset, setValue } =
         useForm<MetaEdgeFormValues>({ defaultValues });
 
     const children = watch('children');
@@ -85,6 +86,11 @@ export const MetaEdgeForm = ({
 
     return (
         <Form onSubmit={handleFormSubmit}>
+            <FormHistoryWatch
+                control={control}
+                setValue={setValue}
+                elementId={element.id}
+            />
             <Form.Group>
                 <Form.Field
                     label="Source"

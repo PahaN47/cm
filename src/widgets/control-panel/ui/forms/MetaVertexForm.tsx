@@ -8,6 +8,7 @@ import { AttributesFields } from './AttributesFields';
 import { RelationFields } from './RelationFields';
 import { buildAttributeDefaults, parseFormAttributes } from './utils';
 import type { AttributeFormField, ElementFormProps } from './types';
+import { FormHistoryWatch } from '@/shared/ui/FormHistoryWatch';
 
 interface MetaVertexFormValues {
     attributes: AttributeFormField[];
@@ -31,7 +32,7 @@ export const MetaVertexForm = ({
         [element],
     );
 
-    const { control, watch, register, handleSubmit, reset } =
+    const { control, watch, register, handleSubmit, reset, setValue } =
         useForm<MetaVertexFormValues>({ defaultValues });
 
     const children = watch('children');
@@ -69,6 +70,11 @@ export const MetaVertexForm = ({
 
     return (
         <Form onSubmit={handleFormSubmit}>
+            <FormHistoryWatch
+                control={control}
+                setValue={setValue}
+                elementId={element.id}
+            />
             <AttributesFields
                 control={control}
                 register={register}

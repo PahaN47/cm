@@ -65,3 +65,16 @@ export interface SerializedElement {
     children: string[];
     parents: string[];
 }
+
+// Mutable, type-agnostic view of an element. Anything that wants to round-trip
+// an element's editable state (form submission, history snapshots, recreation
+// after deletion) should use this shape so the same payload can be replayed
+// through `buildGraphElement` + `setRelations`.
+export interface ElementSnapshot {
+    attributes: Record<string, AttributeValue>;
+    children: string[];
+    parents: string[];
+    source?: string;
+    target?: string;
+    directed?: boolean;
+}
