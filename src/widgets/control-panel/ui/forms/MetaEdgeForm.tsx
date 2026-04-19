@@ -105,7 +105,7 @@ export const MetaEdgeForm = ({
                     {...register('target')}
                 />
                 <Form.Field
-                    label="Направленный"
+                    label="Направлен"
                     component={Checkbox}
                     size="s"
                     checked

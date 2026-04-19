@@ -107,7 +107,7 @@ export const EdgeForm = ({
                     control={control}
                     render={({ field }) => (
                         <Form.Field
-                            label="Направленный"
+                            label="Направлен"
                             component={Checkbox}
                             size="s"
                             checked={field.value}
