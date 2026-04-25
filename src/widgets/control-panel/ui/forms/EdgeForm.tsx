@@ -11,6 +11,7 @@ import { buildAttributeDefaults, parseFormAttributes } from './utils';
 import type { AttributeFormField, ElementFormProps } from './types';
 import { FormHistoryWatch } from '@/shared/ui/FormHistoryWatch';
 import { Select } from '@/shared/ui/Select';
+import { useSelectedElementActions } from '@/features/element-selection';
 
 interface EdgeFormValues {
     source: string;
@@ -48,6 +49,8 @@ export const EdgeForm = ({
     onSubmit,
     submitLabel = 'Применить',
 }: ElementFormProps) => {
+    const { setSelectedElementId } = useSelectedElementActions();
+
     const defaultValues = useMemo<EdgeFormValues>(
         () => buildDefaults(element),
         [element],
@@ -60,10 +63,12 @@ export const EdgeForm = ({
 
     const vertexOptionNodes = useMemo(
         () =>
-            vertexOptions.map((option) => (
-                <Select.Option key={option}>{option}</Select.Option>
-            )),
-        [vertexOptions],
+            vertexOptions
+                .filter((option) => option !== element.id)
+                .map((option) => (
+                    <Select.Option key={option}>{option}</Select.Option>
+                )),
+        [vertexOptions, element.id],
     );
 
     const parents = watch('parents');
@@ -103,38 +108,74 @@ export const EdgeForm = ({
                     name="source"
                     control={control}
                     render={({ field }) => (
-                        <Form.Field
-                            label="Источник"
-                            component={Select}
-                            size="s"
-                            name={field.name}
-                            value={field.value}
-                            onChange={(
-                                e: React.ChangeEvent<HTMLInputElement>,
-                            ) => field.onChange(e.target.value)}
-                            onBlur={field.onBlur}
+                        <div
+                            style={{
+                                display: 'grid',
+                                gap: 8,
+                                gridTemplateColumns: '108px auto min-content',
+                                alignItems: 'center',
+                            }}
                         >
-                            {vertexOptionNodes}
-                        </Form.Field>
+                            <Form.Field
+                                label="Источник"
+                                component={Select}
+                                size="s"
+                                name={field.name}
+                                value={field.value}
+                                onChange={(
+                                    e: React.ChangeEvent<HTMLInputElement>,
+                                ) => field.onChange(e.target.value)}
+                                onBlur={field.onBlur}
+                            >
+                                {vertexOptionNodes}
+                            </Form.Field>
+                            <Button
+                                type="button"
+                                size="s"
+                                onClick={() =>
+                                    setSelectedElementId(field.value)
+                                }
+                            >
+                                {'>'}
+                            </Button>
+                        </div>
                     )}
                 />
                 <Controller
                     name="target"
                     control={control}
                     render={({ field }) => (
-                        <Form.Field
-                            label="Цель"
-                            component={Select}
-                            size="s"
-                            name={field.name}
-                            value={field.value}
-                            onChange={(
-                                e: React.ChangeEvent<HTMLInputElement>,
-                            ) => field.onChange(e.target.value)}
-                            onBlur={field.onBlur}
+                        <div
+                            style={{
+                                display: 'grid',
+                                gap: 8,
+                                gridTemplateColumns: '108px auto min-content',
+                                alignItems: 'center',
+                            }}
                         >
-                            {vertexOptionNodes}
-                        </Form.Field>
+                            <Form.Field
+                                label="Цель"
+                                component={Select}
+                                size="s"
+                                name={field.name}
+                                value={field.value}
+                                onChange={(
+                                    e: React.ChangeEvent<HTMLInputElement>,
+                                ) => field.onChange(e.target.value)}
+                                onBlur={field.onBlur}
+                            >
+                                {vertexOptionNodes}
+                            </Form.Field>
+                            <Button
+                                type="button"
+                                size="s"
+                                onClick={() =>
+                                    setSelectedElementId(field.value)
+                                }
+                            >
+                                {'>'}
+                            </Button>
+                        </div>
                     )}
                 />
                 <Controller

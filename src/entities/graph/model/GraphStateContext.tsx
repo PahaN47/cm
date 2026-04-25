@@ -88,11 +88,8 @@ export function useGraphElement(id: string) {
     const element = getElementById(id);
 
     const availableChildren = useMemo(() => {
-        if (element?.type === 'vertex' || element?.type === 'edge') {
-            return [];
-        }
         return elements.filter((el) => el.id !== id).map((el) => el.id);
-    }, [element?.type, elements, id]);
+    }, [elements, id]);
 
     const availableParents = useMemo(() => {
         return elements
