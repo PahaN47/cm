@@ -96,6 +96,16 @@ function makeStylesheet(theme: Theme): StylesheetJson {
             },
         },
         {
+            // Leaf nodes (no children) are lifted above any compound parent
+            // they might spatially overlap. Without this, fcose can route
+            // a leaf through an unrelated container's bounding box and the
+            // container's body swallows the tap.
+            selector: 'node:childless',
+            style: {
+                'z-compound-depth': 'top',
+            },
+        },
+        {
             selector: 'node.metavertex',
             style: {
                 shape: 'round-rectangle',
@@ -151,6 +161,11 @@ function makeStylesheet(theme: Theme): StylesheetJson {
                 'text-background-opacity': 0.85,
                 'text-background-padding': '2px',
                 'curve-style': 'bezier',
+                // Keep edges above compound parents' bodies so taps on
+                // edges that cross a container aren't stolen by the
+                // container. Metaedge endpoint edges and membership
+                // overlays cross compound boundaries by design.
+                'z-compound-depth': 'top',
             },
         },
         {
