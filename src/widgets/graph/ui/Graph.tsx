@@ -20,7 +20,13 @@ import { useSelectedElementId } from '@/features/element-selection';
 import { Theme, useTheme } from '@/app/theme';
 import { cn } from '@/shared/lib/cn';
 
-import { buildCytoscapeElements } from '../lib/buildCytoscapeElements';
+import {
+    buildCytoscapeElements,
+    isMembershipEdgeId,
+    metaedgeIdFromSyntheticEdgeId,
+    metaedgeSourceEdgeId,
+    metaedgeTargetEdgeId,
+} from '../lib/buildCytoscapeElements';
 import './Graph.scss';
 
 cytoscape.use(fcose);
@@ -98,6 +104,23 @@ function makeStylesheet(theme: Theme): StylesheetJson {
             },
         },
         {
+            // Leaf (no-children) metaedge rendered as a compact dashed pill.
+            // When it actually has children the `:parent.metaedge` rule below
+            // reshapes it into a container.
+            selector: 'node.metaedge',
+            style: {
+                shape: 'round-rectangle',
+                'border-width': 1,
+                'border-color': edgeColor,
+                'border-style': 'dashed',
+                'background-color': isDark ? '#262626' : '#ffffff',
+                'background-opacity': 0.85,
+                color: nodeText,
+                'font-size': 11,
+                padding: '4px',
+            },
+        },
+        {
             selector: ':parent',
             style: {
                 'background-color': parentBg,
@@ -106,6 +129,13 @@ function makeStylesheet(theme: Theme): StylesheetJson {
                 'text-halign': 'center',
                 'border-width': 1,
                 'border-color': parentBg,
+            },
+        },
+        {
+            selector: ':parent.metaedge',
+            style: {
+                'border-style': 'dashed',
+                'border-color': edgeColor,
             },
         },
         {
@@ -137,6 +167,36 @@ function makeStylesheet(theme: Theme): StylesheetJson {
             },
         },
         {
+            // Synthetic endpoint edges never carry their own label; the label
+            // lives on the metaedge-node between them.
+            selector: 'edge.metaedge-endpoint',
+            style: {
+                label: '',
+                'text-background-opacity': 0,
+            },
+        },
+        {
+            // Source half of a metaedge is always undirected regardless of
+            // the metaedge's own `directed` flag.
+            selector: 'edge.metaedge-source',
+            style: {
+                'target-arrow-shape': 'none',
+            },
+        },
+        {
+            selector: 'edge.membership',
+            style: {
+                width: 1,
+                'line-style': 'dotted',
+                'line-color': parentBg,
+                opacity: 0.5,
+                label: '',
+                'target-arrow-shape': 'none',
+                'curve-style': 'bezier',
+                'text-background-opacity': 0,
+            },
+        },
+        {
             selector: '.selected',
             style: {
                 'background-color': selectedColor,
@@ -144,6 +204,16 @@ function makeStylesheet(theme: Theme): StylesheetJson {
                 'target-arrow-color': selectedColor,
                 'border-width': 3,
                 'border-color': selectedColor,
+            },
+        },
+        {
+            // Membership edges are normally dimmed so they don't compete with
+            // real graph edges; when selected along with their parent, bring
+            // them fully forward so the parenthood link reads clearly.
+            selector: 'edge.membership.selected',
+            style: {
+                opacity: 1,
+                width: 2,
             },
         },
     ];
@@ -350,7 +420,26 @@ export const Graph = ({ onSelectElement }: GraphProps) => {
             'tap',
             'node, edge',
             (event: EventObjectNode | EventObjectEdge) => {
-                handleSelectElement(event.target.id());
+                const el = event.target;
+                const id: string = el.id();
+                // Membership edges are synthetic overlays for extra parent
+                // links; a tap should resolve to the container (parent) the
+                // link points to, not the link itself.
+                if (isMembershipEdgeId(id)) {
+                    const parentId: unknown = el.data('target');
+                    handleSelectElement(
+                        typeof parentId === 'string' ? parentId : null,
+                    );
+                    return;
+                }
+                // Metaedge endpoint edges are synthetic halves of a metaedge;
+                // a tap on either should select the metaedge itself.
+                const metaedgeId = metaedgeIdFromSyntheticEdgeId(id);
+                if (metaedgeId !== null) {
+                    handleSelectElement(metaedgeId);
+                    return;
+                }
+                handleSelectElement(id);
             },
         );
 
@@ -443,9 +532,35 @@ export const Graph = ({ onSelectElement }: GraphProps) => {
 
         target.addClass('selected');
 
+        // If the selected element is a metaedge, its two endpoint edges are
+        // part of the same visual unit and should be highlighted and framed
+        // together. `getElementById` on a non-existent id returns an empty
+        // collection, so for non-metaedges these are harmless no-ops.
+        const srcEndpoint = cy.getElementById(
+            metaedgeSourceEdgeId(selectedElementId),
+        );
+        const tgtEndpoint = cy.getElementById(
+            metaedgeTargetEdgeId(selectedElementId),
+        );
+        srcEndpoint.addClass('selected');
+        tgtEndpoint.addClass('selected');
+
+        // Membership edges are the dotted overlay links from children to
+        // their extra parents. When a container (metavertex/metaedge) is
+        // selected, light up every membership edge that points at it so the
+        // extra-parent relationships it participates in are visible too.
+        const membershipEdges = cy
+            .edges('.membership')
+            .filter((e) => e.data('target') === selectedElementId);
+        membershipEdges.addClass('selected');
+
+        let boundsEles = target;
+        if (srcEndpoint.nonempty()) boundsEles = boundsEles.union(srcEndpoint);
+        if (tgtEndpoint.nonempty()) boundsEles = boundsEles.union(tgtEndpoint);
+
         // Compute a zoom that keeps the element visible without zooming all
         // the way in if it's already a comfortable size on screen.
-        const bb = target.boundingBox({});
+        const bb = boundsEles.boundingBox({});
         const padding = 80;
         const viewport = cy.extent();
         const viewportW = viewport.w;
@@ -464,7 +579,7 @@ export const Graph = ({ onSelectElement }: GraphProps) => {
         cy.stop(true, true);
         cy.animate(
             {
-                center: { eles: target },
+                center: { eles: boundsEles },
                 zoom: targetZoom,
             },
             { duration: 350, easing: 'ease-in-out' },
