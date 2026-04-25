@@ -19,6 +19,10 @@ export const ActionNames = {
     UPDATE_FORM: 'update-form',
     UPDATE_FIELD: 'update-field',
     FOCUS_FIELD: 'focus-field',
+    CLICK_GRAPH_ELEMENT: 'click-graph-element',
+    ZOOM_GRAPH: 'zoom-graph',
+    DRAG_GRAPH_ELEMENT: 'drag-graph-element',
+    PAN_GRAPH: 'pan-graph',
 } as const;
 
 export type ActionName = (typeof ActionNames)[keyof typeof ActionNames];

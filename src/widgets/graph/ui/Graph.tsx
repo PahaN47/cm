@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import cytoscape from 'cytoscape';
 import type {
     Core,
+    EdgeSingular,
     ElementDefinition,
     EventObject,
     EventObjectEdge,
@@ -10,6 +11,7 @@ import type {
     StylesheetJson,
 } from 'cytoscape';
 import fcose from 'cytoscape-fcose';
+import { debounce } from 'lodash';
 
 import {
     useGetGraphElementById,
@@ -28,6 +30,7 @@ import {
     metaedgeTargetEdgeId,
 } from '../lib/buildCytoscapeElements';
 import './Graph.scss';
+import { Button } from '@/shared/ui/Button';
 
 cytoscape.use(fcose);
 
@@ -275,7 +278,10 @@ function snapshot(def: ElementDefinition): ElementSnapshot {
 // An element's "identity" for Cytoscape purposes: its group, and for edges
 // its endpoints. None of these can be mutated in place, so when any of them
 // changes we must remove and re-add the element.
-function identityChanged(prev: ElementSnapshot, next: ElementSnapshot): boolean {
+function identityChanged(
+    prev: ElementSnapshot,
+    next: ElementSnapshot,
+): boolean {
     if (prev.group !== next.group) return true;
     if (next.group === 'edges') {
         if (prev.source !== next.source) return true;
@@ -376,14 +382,19 @@ function patchGraph(
         removedIds.length > 0 ||
         replacedIds.size > 0;
 
-    return { addedNodeIds: addedNodes.map((n) => n.data.id!), structureChanged };
+    return {
+        addedNodeIds: addedNodes.map((n) => n.data.id!),
+        structureChanged,
+    };
 }
 
 interface GraphProps {
     onSelectElement: (id: string | null) => void;
 }
 
-export const Graph = ({ onSelectElement }: GraphProps) => {
+const EVENT_DEBOUNCE_TIME = 100;
+
+const GraphDisplay = ({ onSelectElement }: GraphProps) => {
     const elements = useGraphState();
     const log = useActivityLog();
     const { theme } = useTheme();
@@ -415,6 +426,48 @@ export const Graph = ({ onSelectElement }: GraphProps) => {
         onSelectElementRef.current(id);
     }, []);
 
+    const trackElementClick = useCallback((_logicalElementId: string) => {
+        logRef.current(ActionNames.CLICK_GRAPH_ELEMENT, {
+            id: _logicalElementId,
+        });
+    }, []);
+    const trackUserZoom = useMemo(
+        () =>
+            debounce((_zoom: number) => {
+                logRef.current(ActionNames.ZOOM_GRAPH, { zoom: _zoom });
+            }, EVENT_DEBOUNCE_TIME),
+        [],
+    );
+    const trackElementDrag = useMemo(
+        () =>
+            debounce(
+                (_elementId: string, _position: { x: number; y: number }) => {
+                    logRef.current(ActionNames.DRAG_GRAPH_ELEMENT, {
+                        id: _elementId,
+                        position: _position,
+                    });
+                },
+                EVENT_DEBOUNCE_TIME,
+            ),
+        [],
+    );
+    const trackViewportPan = useMemo(
+        () =>
+            debounce((_pan: { x: number; y: number }) => {
+                logRef.current(ActionNames.PAN_GRAPH, { pan: _pan });
+            }, EVENT_DEBOUNCE_TIME),
+        [],
+    );
+
+    const trackElementClickRef = useRef(trackElementClick);
+    trackElementClickRef.current = trackElementClick;
+    const trackUserZoomRef = useRef(trackUserZoom);
+    trackUserZoomRef.current = trackUserZoom;
+    const trackElementDragRef = useRef(trackElementDrag);
+    trackElementDragRef.current = trackElementDrag;
+    const trackViewportPanRef = useRef(trackViewportPan);
+    trackViewportPanRef.current = trackViewportPan;
+
     // Mount: create the Cytoscape instance once.
     useEffect(() => {
         const container = containerRef.current;
@@ -442,9 +495,12 @@ export const Graph = ({ onSelectElement }: GraphProps) => {
                 // link points to, not the link itself.
                 if (isMembershipEdgeId(id)) {
                     const parentId: unknown = el.data('target');
-                    handleSelectElement(
-                        typeof parentId === 'string' ? parentId : null,
-                    );
+                    const resolved =
+                        typeof parentId === 'string' ? parentId : null;
+                    handleSelectElement(resolved);
+                    if (resolved !== null) {
+                        trackElementClickRef.current(resolved);
+                    }
                     return;
                 }
                 // Metaedge endpoint edges are synthetic halves of a metaedge;
@@ -452,11 +508,59 @@ export const Graph = ({ onSelectElement }: GraphProps) => {
                 const metaedgeId = metaedgeIdFromSyntheticEdgeId(id);
                 if (metaedgeId !== null) {
                     handleSelectElement(metaedgeId);
+                    trackElementClickRef.current(metaedgeId);
                     return;
                 }
                 handleSelectElement(id);
+                trackElementClickRef.current(id);
             },
         );
+
+        const notifyUserZoom = () => {
+            trackUserZoomRef.current(cy.zoom());
+        };
+        cy.on('scrollzoom', notifyUserZoom);
+        cy.on('pinchzoom', notifyUserZoom);
+
+        cy.on(
+            'drag',
+            'node, edge',
+            (event: EventObjectNode | EventObjectEdge) => {
+                const target = event.target;
+                let position: { x: number; y: number };
+                if (target.group() === 'nodes') {
+                    const p = (target as NodeSingular).position();
+                    position = { x: p.x, y: p.y };
+                } else {
+                    const e = target as EdgeSingular;
+                    const sp = e.source().position();
+                    const tp = e.target().position();
+                    position = {
+                        x: (sp.x + tp.x) / 2,
+                        y: (sp.y + tp.y) / 2,
+                    };
+                }
+                trackElementDragRef.current(target.id(), position);
+            },
+        );
+
+        // Pan also fires for incidental viewport updates (e.g. around element
+        // clicks). Only forward pans that belong to a gesture that started on
+        // the graph background, not on a node or edge.
+        let viewportPanTrackingEnabled = false;
+        cy.on('tapstart', (event: EventObject) => {
+            viewportPanTrackingEnabled = event.target === cy;
+        });
+        cy.on('tapend', () => {
+            viewportPanTrackingEnabled = false;
+        });
+        cy.on('pan', () => {
+            if (!viewportPanTrackingEnabled) return;
+            const p = cy.pan();
+            // `cy.pan()` is a frozen object; Redux/Immer must receive a plain
+            // mutable snapshot or nested writes fail during logging.
+            trackViewportPanRef.current({ x: p.x, y: p.y });
+        });
 
         return () => {
             cy.destroy();
@@ -585,8 +689,7 @@ export const Graph = ({ onSelectElement }: GraphProps) => {
             cy.height() / (bb.h + padding * 2),
         );
         const elementFitsInView =
-            bb.w + padding * 2 <= viewportW &&
-            bb.h + padding * 2 <= viewportH;
+            bb.w + padding * 2 <= viewportW && bb.h + padding * 2 <= viewportH;
         const targetZoom = elementFitsInView
             ? cy.zoom()
             : Math.min(fitZoom, cy.zoom());
@@ -609,8 +712,35 @@ export const Graph = ({ onSelectElement }: GraphProps) => {
     }, [stylesheet]);
 
     return (
+        <div className={b('display')}>
+            <div ref={containerRef} className={b('display-canvas')} />
+        </div>
+    );
+};
+
+export const Graph = ({ onSelectElement }: GraphProps) => {
+    const [shouldReconstruct, setShouldReconstruct] = useState(false);
+
+    useEffect(() => {
+        if (shouldReconstruct) {
+            setShouldReconstruct(false);
+        }
+    }, [shouldReconstruct]);
+
+    return (
         <div className={b()}>
-            <div ref={containerRef} className={b('canvas')} />
+            {shouldReconstruct ? null : (
+                <GraphDisplay onSelectElement={onSelectElement} />
+            )}
+            <Button
+                className={b('reconstruct')}
+                variant="normal"
+                color="accent"
+                size="s"
+                onClick={() => setShouldReconstruct(true)}
+            >
+                Перестроить граф
+            </Button>
         </div>
     );
 };
