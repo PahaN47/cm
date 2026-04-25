@@ -187,28 +187,55 @@ function snapshot(def: ElementDefinition): ElementSnapshot {
  * Returns the ids of nodes that were added, so the caller can run an
  * incremental layout that only positions the new content.
  */
+// An element's "identity" for Cytoscape purposes: its group, and for edges
+// its endpoints. None of these can be mutated in place, so when any of them
+// changes we must remove and re-add the element.
+function identityChanged(prev: ElementSnapshot, next: ElementSnapshot): boolean {
+    if (prev.group !== next.group) return true;
+    if (next.group === 'edges') {
+        if (prev.source !== next.source) return true;
+        if (prev.target !== next.target) return true;
+    }
+    return false;
+}
+
 function patchGraph(
     cy: Core,
     prev: Map<string, ElementSnapshot>,
     next: ElementDefinition[],
 ): { addedNodeIds: string[]; structureChanged: boolean } {
     const nextMap = new Map<string, ElementDefinition>();
+    const nextSnapshots = new Map<string, ElementSnapshot>();
     for (const el of next) {
         const id = el.data.id;
-        if (typeof id === 'string') nextMap.set(id, el);
+        if (typeof id !== 'string') continue;
+        nextMap.set(id, el);
+        nextSnapshots.set(id, snapshot(el));
     }
 
     const addedNodes: ElementDefinition[] = [];
     const addedEdges: ElementDefinition[] = [];
     const removedIds: string[] = [];
+    // Elements that survived by id but whose group/endpoints changed. They
+    // need a full remove + re-add so Cytoscape rebuilds them correctly
+    // (e.g. when a vertex is re-typed as an edge).
+    const replacedIds = new Set<string>();
 
     for (const id of prev.keys()) {
         if (!nextMap.has(id)) removedIds.push(id);
     }
 
+    for (const [id, nextSnap] of nextSnapshots) {
+        const prevSnap = prev.get(id);
+        if (!prevSnap) continue;
+        if (identityChanged(prevSnap, nextSnap)) replacedIds.add(id);
+    }
+
+    const idsToRemove = [...removedIds, ...replacedIds];
+
     // Detach children from any parent that's about to be removed; otherwise
     // Cytoscape would cascade-remove the children with the parent.
-    for (const id of removedIds) {
+    for (const id of idsToRemove) {
         const prevSnap = prev.get(id);
         if (prevSnap?.group !== 'nodes') continue;
         const node = cy.getElementById(id);
@@ -218,15 +245,15 @@ function patchGraph(
         });
     }
 
-    if (removedIds.length > 0) {
-        const selector = removedIds
+    if (idsToRemove.length > 0) {
+        const selector = idsToRemove
             .map((id) => `#${CSS.escape(id)}`)
             .join(', ');
         cy.remove(selector);
     }
 
     for (const [id, def] of nextMap) {
-        if (prev.has(id)) continue;
+        if (prev.has(id) && !replacedIds.has(id)) continue;
         if (def.group === 'edges') addedEdges.push(def);
         else addedNodes.push(def);
     }
@@ -239,10 +266,11 @@ function patchGraph(
     for (const [id, def] of nextMap) {
         const prevSnap = prev.get(id);
         if (!prevSnap) continue;
+        if (replacedIds.has(id)) continue;
         const cyEl = cy.getElementById(id);
         if (cyEl.empty()) continue;
 
-        const nextSnap = snapshot(def);
+        const nextSnap = nextSnapshots.get(id) ?? snapshot(def);
 
         if (nextSnap.group === 'nodes' && nextSnap.parent !== prevSnap.parent) {
             (cyEl as NodeSingular).move({ parent: nextSnap.parent ?? null });
@@ -260,7 +288,8 @@ function patchGraph(
     const structureChanged =
         addedNodes.length > 0 ||
         addedEdges.length > 0 ||
-        removedIds.length > 0;
+        removedIds.length > 0 ||
+        replacedIds.size > 0;
 
     return { addedNodeIds: addedNodes.map((n) => n.data.id!), structureChanged };
 }

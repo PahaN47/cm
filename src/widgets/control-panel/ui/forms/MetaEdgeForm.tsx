@@ -72,7 +72,6 @@ export const MetaEdgeForm = ({
     const parents = watch('parents');
 
     const filteredChildrenOptions = useMemo(() => {
-        console.log({ childrenOptions, children });
         return childrenOptions.filter((id) => !children.includes(id));
     }, [childrenOptions, children]);
 
