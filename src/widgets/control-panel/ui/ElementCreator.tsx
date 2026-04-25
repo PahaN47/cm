@@ -73,6 +73,7 @@ export const ElementCreator = ({ onSubmit }: ElementCreatorProps) => {
     }, [vertices, metavertices]);
 
     const [id, setId] = useState('');
+    const [idError, setIdError] = useState(false);
     const [type, setType] = useState<ElementType>('vertex');
     const [formKey, setFormKey] = useState(0);
 
@@ -81,6 +82,13 @@ export const ElementCreator = ({ onSubmit }: ElementCreatorProps) => {
     const handleCreate = useCallback(
         (data: ElementFormSubmitData) => {
             const trimmedId = id.trim();
+
+            const existingElement = store.getElement(trimmedId);
+            if (existingElement) {
+                setIdError(true);
+                return;
+            }
+
             log(ActionNames.CREATE_ELEMENT, { id: trimmedId, type, ...data });
 
             if (!trimmedId) return;
@@ -118,9 +126,11 @@ export const ElementCreator = ({ onSubmit }: ElementCreatorProps) => {
                     component={Input}
                     size="s"
                     value={id}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        setId(e.target.value)
-                    }
+                    error={idError}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setId(e.target.value);
+                        setIdError(false);
+                    }}
                 />
                 <Form.Field
                     label="Тип"
