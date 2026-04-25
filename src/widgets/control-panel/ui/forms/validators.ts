@@ -6,3 +6,5 @@ export const validateInt = (value: unknown) =>
         : 'Invalid int';
 export const validateFloat = (value: unknown) =>
     Number(value) == value ? true : 'Invalid float';
+export const validateRequired = (value: unknown) =>
+    value !== undefined && value !== null && value !== '' ? true : 'Required';

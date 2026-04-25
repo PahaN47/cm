@@ -14,7 +14,6 @@ import {
     useHistory,
     useHistoryShortcuts,
 } from '@/features/history';
-import { ActivityLogProvider } from '@/features/activity-log';
 import {
     SelectedElementProvider,
     useSelectedElementActions,
@@ -22,14 +21,20 @@ import {
 } from '@/features/element-selection';
 import { Theme, useTheme } from '@/app/theme';
 import { Button } from '@/shared/ui/Button';
+import { useAuth } from '@/app/auth';
+import { useNavigate } from 'react-router-dom';
 
 // Inner component so the shortcuts hook can sit inside all providers
 // (GraphStateProvider, HistoryFormApplierProvider, SelectedElementProvider)
 // while the page-level effects (clearing pending form history on selection
 // change, switching tabs on graph click) can read the shared selection.
 const HomeContent = () => {
-    const { clearPendingFormHistory } = useHistory();
+    const navigate = useNavigate();
+
+    const { login } = useAuth();
     const { theme, setTheme } = useTheme();
+
+    const { clearPendingFormHistory } = useHistory();
 
     const selectedElementId = useSelectedElementId();
     const { setSelectedElementId } = useSelectedElementActions();
@@ -53,6 +58,12 @@ const HomeContent = () => {
     useEffect(() => {
         clearPendingFormHistory();
     }, [selectedElementId, clearPendingFormHistory]);
+
+    useEffect(() => {
+        if (!login) {
+            navigate('/auth');
+        }
+    }, [login, navigate]);
 
     return (
         <Layout>
@@ -98,11 +109,9 @@ export const HomePage = () => {
     return (
         <GraphStateProvider store={store}>
             <HistoryFormApplierProvider>
-                <ActivityLogProvider>
-                    <SelectedElementProvider>
-                        <HomeContent />
-                    </SelectedElementProvider>
-                </ActivityLogProvider>
+                <SelectedElementProvider>
+                    <HomeContent />
+                </SelectedElementProvider>
             </HistoryFormApplierProvider>
         </GraphStateProvider>
     );

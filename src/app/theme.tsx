@@ -28,7 +28,7 @@ const ThemeContext = createContext<ThemeContextType>({
 
 export interface ThemeProviderProps {
     defaultTheme?: Theme;
-    children: React.ReactNode;
+    children?: React.ReactNode;
 }
 
 const THEME_STORAGE_KEY = 'theme';

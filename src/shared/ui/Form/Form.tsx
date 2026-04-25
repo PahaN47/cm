@@ -52,7 +52,10 @@ type FormFieldProps<C extends React.ElementType = React.ElementType> = {
 } & Omit<React.ComponentPropsWithoutRef<C>, 'label' | 'component'>;
 
 const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
-    ({ label, component: Component, name, onFocus, onChange, ...rest }, ref) => {
+    (
+        { label, component: Component, name, onFocus, onChange, ...rest },
+        ref,
+    ) => {
         const id = useId();
         const log = useActivityLog();
 
@@ -129,8 +132,11 @@ FormField.displayName = 'Form.Field';
 
 // ── Group ───────────────────────────────────────────────────────────────────
 
-const FormGroup = ({ children }: React.PropsWithChildren) => {
-    return <div className={b('group')}>{children}</div>;
+const FormGroup = ({
+    className,
+    children,
+}: React.PropsWithChildren<{ className?: string }>) => {
+    return <div className={b('group', className)}>{children}</div>;
 };
 
 // ── Form ────────────────────────────────────────────────────────────────────

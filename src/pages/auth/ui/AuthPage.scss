@@ -1,0 +1,10 @@
+@import '@/shared/styles';
+
+.AuthPage {
+    height: 100%;
+
+    &__group {
+        height: 100%;
+        align-items: center;
+    }
+}

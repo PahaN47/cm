@@ -13,7 +13,7 @@ const ActivityLogContext = createContext<LogActivity | null>(null);
 
 // Provides a stable `log(name, payload?)` callback to the subtree. Must sit
 // inside the redux `<Provider>` since it dispatches into the activity slice.
-export function ActivityLogProvider({ children }: { children: ReactNode }) {
+export function ActivityLogProvider({ children }: { children?: ReactNode }) {
     const dispatch = useDispatch();
 
     const log = useCallback<LogActivity>(
