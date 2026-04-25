@@ -6,7 +6,7 @@ import {
     parseMetagraphXml,
 } from '@/entities/graph';
 import { fetchGraph } from '@/shared/api/fetchGraph';
-import { GraphStub } from '@/widgets/graph-stub';
+import { Graph } from '@/widgets/graph';
 import { ControlPanel } from '@/widgets/control-panel';
 import { Layout } from '@/shared/ui/Layout';
 import {
@@ -15,23 +15,26 @@ import {
     useHistoryShortcuts,
 } from '@/features/history';
 import { ActivityLogProvider } from '@/features/activity-log';
+import {
+    SelectedElementProvider,
+    useSelectedElementActions,
+    useSelectedElementId,
+} from '@/features/element-selection';
 import { Theme, useTheme } from '@/app/theme';
 import { Button } from '@/shared/ui/Button';
 
-// Inner component so the shortcuts hook can sit inside both providers
-// (GraphStateProvider for the store, HistoryFormApplierProvider for the form
-// applier) while sharing the page-level selection state.
-const HomeContent = ({
-    selectedElementId,
-    setSelectedElementId,
-}: {
-    selectedElementId: string | null;
-    setSelectedElementId: (id: string | null) => void;
-}) => {
+// Inner component so the shortcuts hook can sit inside all providers
+// (GraphStateProvider, HistoryFormApplierProvider, SelectedElementProvider)
+// while the page-level effects (clearing pending form history on selection
+// change, switching tabs on graph click) can read the shared selection.
+const HomeContent = () => {
     const { clearPendingFormHistory } = useHistory();
     const { theme, setTheme } = useTheme();
 
-    useHistoryShortcuts({ selectedElementId, setSelectedElementId });
+    const selectedElementId = useSelectedElementId();
+    const { setSelectedElementId } = useSelectedElementActions();
+
+    useHistoryShortcuts();
 
     const [activeTab, setActiveTab] = useState<'edit' | 'create'>('edit');
 
@@ -54,15 +57,10 @@ const HomeContent = ({
     return (
         <Layout>
             <Layout.Panel row={[1, 10]} col={[1, 8]}>
-                <GraphStub
-                    selectedElementId={selectedElementId}
-                    onSelectElement={onSelectElement}
-                />
+                <Graph onSelectElement={onSelectElement} />
             </Layout.Panel>
             <Layout.Panel row={[1, 10]} col={[9, 12]}>
                 <ControlPanel
-                    selectedElementId={selectedElementId}
-                    setSelectedElementId={setSelectedElementId}
                     activeTab={activeTab}
                     setActiveTab={setActiveTab}
                 />
@@ -87,9 +85,6 @@ const HomeContent = ({
 };
 
 export const HomePage = () => {
-    const [selectedElementId, setSelectedElementId] = useState<string | null>(
-        null,
-    );
     const store = useMemo(() => new GraphStore(), []);
 
     useEffect(() => {
@@ -104,10 +99,9 @@ export const HomePage = () => {
         <GraphStateProvider store={store}>
             <HistoryFormApplierProvider>
                 <ActivityLogProvider>
-                    <HomeContent
-                        selectedElementId={selectedElementId}
-                        setSelectedElementId={setSelectedElementId}
-                    />
+                    <SelectedElementProvider>
+                        <HomeContent />
+                    </SelectedElementProvider>
                 </ActivityLogProvider>
             </HistoryFormApplierProvider>
         </GraphStateProvider>

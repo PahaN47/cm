@@ -77,6 +77,7 @@ export const VertexForm = ({
                 control={control}
                 render={({ field }) => (
                     <RelationFields
+                        type="parents"
                         label="Родители"
                         value={field.value}
                         onChange={field.onChange}

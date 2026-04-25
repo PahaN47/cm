@@ -78,6 +78,10 @@ export function useGraphState(type?: ElementType): SerializedElement[] {
     }, [elements, type]);
 }
 
+export function useGetGraphElementById() {
+    return useGraphContext().getElementById;
+}
+
 export function useGraphElement(id: string) {
     const { store, elements, getElementById } = useGraphContext();
 

@@ -157,6 +157,7 @@ export const MetaEdgeForm = ({
                 control={control}
                 render={({ field }) => (
                     <RelationFields
+                        type="children"
                         label="Потомки"
                         value={field.value}
                         onChange={field.onChange}
@@ -170,6 +171,7 @@ export const MetaEdgeForm = ({
                 control={control}
                 render={({ field }) => (
                     <RelationFields
+                        type="parents"
                         label="Родители"
                         value={field.value}
                         onChange={field.onChange}

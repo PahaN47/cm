@@ -1,4 +1,5 @@
 import { useGraphState } from '@/entities/graph';
+import { useSelectedElementId } from '@/features/element-selection';
 import { cn } from '@/shared/lib/cn';
 import { Button } from '@/shared/ui/Button';
 
@@ -9,16 +10,13 @@ import { useCallback } from 'react';
 const b = cn('GraphStub');
 
 interface GraphStubProps {
-    selectedElementId: string | null;
     onSelectElement: (id: string | null) => void;
 }
 
-export const GraphStub = ({
-    selectedElementId,
-    onSelectElement,
-}: GraphStubProps) => {
+export const GraphStub = ({ onSelectElement }: GraphStubProps) => {
     const elements = useGraphState();
     const log = useActivityLog();
+    const selectedElementId = useSelectedElementId();
 
     const handleSelectElement = useCallback(
         (id: string | null) => {

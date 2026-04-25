@@ -3,6 +3,10 @@ import { useCallback, useEffect } from 'react';
 import { useTabs } from '@/shared/lib';
 import { cn } from '@/shared/lib/cn';
 import { useHistory } from '@/features/history';
+import {
+    useSelectedElementActions,
+    useSelectedElementId,
+} from '@/features/element-selection';
 import { ElementEditor } from './ElementEditor';
 import { ElementCreator } from './ElementCreator';
 
@@ -11,13 +15,10 @@ import { ActionNames, useActivityLog } from '@/features/activity-log';
 
 const b = cn('ControlPanel');
 
-const EditTab = ({
-    selectedElementId,
-    setSelectedElementId,
-}: {
-    selectedElementId: string | null;
-    setSelectedElementId: (elementId: string | null) => void;
-}) => {
+const EditTab = () => {
+    const selectedElementId = useSelectedElementId();
+    const { resetSelectedElement } = useSelectedElementActions();
+
     if (!selectedElementId) {
         return (
             <div className={b('empty')}>
@@ -29,7 +30,7 @@ const EditTab = ({
         <ElementEditor
             key={selectedElementId}
             elementId={selectedElementId}
-            resetSelectedElement={() => setSelectedElementId(null)}
+            resetSelectedElement={resetSelectedElement}
         />
     );
 };
@@ -42,32 +43,25 @@ const CreateTab = ({ onSubmit }: CreateTabProps) => {
 };
 
 interface ControlPanelProps {
-    selectedElementId: string | null;
-    setSelectedElementId: (elementId: string | null) => void;
     activeTab: 'edit' | 'create';
     setActiveTab: (tabId: 'edit' | 'create') => void;
 }
 
 export const ControlPanel = ({
-    selectedElementId,
-    setSelectedElementId,
     activeTab: propsActiveTab,
     setActiveTab: propsSetActiveTab,
 }: ControlPanelProps) => {
     const { clearPendingFormHistory } = useHistory();
     const log = useActivityLog();
+    const { setSelectedElementId, resetSelectedElement } =
+        useSelectedElementActions();
 
     const { TabControls, TabPanel, activeTab, setActiveTab } = useTabs({
         tabs: [
             {
                 id: 'edit',
                 label: 'Элемент',
-                component: (
-                    <EditTab
-                        selectedElementId={selectedElementId}
-                        setSelectedElementId={setSelectedElementId}
-                    />
-                ),
+                component: <EditTab />,
             },
             {
                 id: 'create',
@@ -90,10 +84,10 @@ export const ControlPanel = ({
                     log(ActionNames.SELECT_EDITOR_TAB, { tabId });
 
                     if (tabId === 'create') {
-                        setSelectedElementId(null);
+                        resetSelectedElement();
                     }
                 },
-                [log, setSelectedElementId],
+                [log, resetSelectedElement],
             ),
         },
     });

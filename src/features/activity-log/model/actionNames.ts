@@ -7,6 +7,8 @@
 // purely organisational — feel free to extend it freely.
 export const ActionNames = {
     SELECT_ELEMENT: 'select-element',
+    SELECT_ELEMENT_FROM_PARENT: 'select-element-from-parent',
+    SELECT_ELEMENT_FROM_CHILD: 'select-element-from-child',
     SELECT_EDITOR_TAB: 'select-editor-tab',
     APPLY_ELEMENT: 'apply-element',
     CREATE_ELEMENT: 'create-element',

@@ -6,10 +6,13 @@ import { Input } from '@/shared/ui/Input';
 import { Button } from '@/shared/ui/Button';
 import { Select } from '@/shared/ui/Select';
 import { InputProps } from '@/shared/ui/Input/Input';
+import { useSelectedElementActions } from '@/features/element-selection';
+import { ActionNames, useActivityLog } from '@/features/activity-log';
 
 const formCn = cn('Form');
 
 interface RelationFieldsProps {
+    type: 'parents' | 'children';
     label: string;
     value: string[];
     onChange: (ids: string[]) => void;
@@ -18,12 +21,16 @@ interface RelationFieldsProps {
 }
 
 export const RelationFields = ({
+    type,
     label,
     value,
     onChange,
     options,
     defaultCollapsed = false,
 }: RelationFieldsProps) => {
+    const log = useActivityLog();
+    const { setSelectedElementId } = useSelectedElementActions();
+
     const [collapsed, setCollapsed] = useState(defaultCollapsed);
     const [newId, setNewId] = useState('');
 
@@ -98,12 +105,23 @@ export const RelationFields = ({
                                         alignItems: 'center',
                                     }}
                                 >
-                                    <Input
+                                    <Button
+                                        type="button"
                                         size="s"
-                                        value={id}
-                                        disabled
-                                        style={{ flex: 1, minWidth: 0 }}
-                                    />
+                                        variant="normal"
+                                        style={{ flexGrow: 1 }}
+                                        onClick={() => {
+                                            log(
+                                                type === 'parents'
+                                                    ? ActionNames.SELECT_ELEMENT_FROM_PARENT
+                                                    : ActionNames.SELECT_ELEMENT_FROM_CHILD,
+                                                { id },
+                                            );
+                                            setSelectedElementId(id);
+                                        }}
+                                    >
+                                        {id}
+                                    </Button>
                                     <Button
                                         type="button"
                                         size="s"

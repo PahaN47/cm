@@ -8,6 +8,7 @@ import {
     type ElementType,
     type GraphElement,
 } from '@/entities/graph';
+import { useSelectedElementActions } from '@/features/element-selection';
 
 import { useFormApplierRef } from './HistoryFormApplierContext';
 import {
@@ -31,38 +32,25 @@ interface WithHistoryState {
     history: HistoryState;
 }
 
-interface ShortcutsOptions {
-    selectedElementId: string | null;
-    setSelectedElementId: (id: string | null) => void;
-}
-
 type Direction = 'undo' | 'redo';
 
 /**
  * Mounts global Cmd/Ctrl+Z (undo) and Cmd/Ctrl+Shift+Z (redo) listeners and
  * runs the side effects of the corresponding history descriptors against the
  * graph store and the currently-mounted form. Must be called inside a
- * `GraphStateProvider` and a `HistoryFormApplierProvider`.
+ * `GraphStateProvider`, a `HistoryFormApplierProvider`, and a
+ * `SelectedElementProvider`.
  */
-export function useHistoryShortcuts({
-    selectedElementId,
-    setSelectedElementId,
-}: ShortcutsOptions) {
+export function useHistoryShortcuts() {
     const dispatch = useDispatch();
     const store = useGraphStore();
     const log = useActivityLog();
     const applierRef = useFormApplierRef();
+    const { setSelectedElementId, clearIfSelected } =
+        useSelectedElementActions();
 
     const { nextUndo, nextRedo } = useSelector(
         (state: WithHistoryState) => state.history,
-    );
-
-    const refocus = useCallback(
-        (id: string | null) => {
-            if (selectedElementId === id) return;
-            setSelectedElementId(id);
-        },
-        [selectedElementId, setSelectedElementId],
     );
 
     // Apply a snapshot of editable fields (attributes, source/target/directed,
@@ -114,13 +102,11 @@ export function useHistoryShortcuts({
                 case 'add': {
                     const a: CreateElementAction = action;
                     if (direction === 'undo') {
-                        if (selectedElementId === a.elementId) {
-                            setSelectedElementId(null);
-                        }
+                        clearIfSelected(a.elementId);
                         store.removeElement(a.elementId);
                     } else {
                         recreate(a.elementId, a.elementType, a.data);
-                        refocus(a.elementId);
+                        setSelectedElementId(a.elementId);
                     }
                     break;
                 }
@@ -128,11 +114,9 @@ export function useHistoryShortcuts({
                     const a: RemoveElementAction = action;
                     if (direction === 'undo') {
                         recreate(a.elementId, a.elementType, a.data);
-                        refocus(a.elementId);
+                        setSelectedElementId(a.elementId);
                     } else {
-                        if (selectedElementId === a.elementId) {
-                            setSelectedElementId(null);
-                        }
+                        clearIfSelected(a.elementId);
                         store.removeElement(a.elementId);
                     }
                     break;
@@ -141,7 +125,7 @@ export function useHistoryShortcuts({
                     const a: UpdateElementAction = action;
                     const target = direction === 'undo' ? a.prevData : a.data;
                     applySnapshot(a.elementId, target);
-                    refocus(a.elementId);
+                    setSelectedElementId(a.elementId);
                     break;
                 }
                 case 'change-type': {
@@ -158,7 +142,7 @@ export function useHistoryShortcuts({
                     applySnapshot(a.elementId, targetData, {
                         skipMarkBaseline: true,
                     });
-                    refocus(a.elementId);
+                    setSelectedElementId(a.elementId);
                     break;
                 }
                 case 'update-form': {
@@ -190,9 +174,8 @@ export function useHistoryShortcuts({
             applierRef,
             applySnapshot,
             recreate,
-            refocus,
-            selectedElementId,
             setSelectedElementId,
+            clearIfSelected,
         ],
     );
 
