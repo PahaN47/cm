@@ -1,13 +1,16 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
     useGraphElement,
     useGraphState,
+    type AttributeValue,
     type ElementSnapshot,
     type ElementType,
     type GraphElement,
     type SerializedElement,
 } from '@/entities/graph';
+import { serializedElementToGraphElementOption } from '@/entities/graph/lib/graphElementOption';
+import { mergeNameIntoAttributes } from '@/entities/graph/lib/mergeNameIntoAttributes';
 import { Form } from '@/shared/ui/Form';
 import { Input } from '@/shared/ui/Input';
 import { Button } from '@/shared/ui/Button';
@@ -68,16 +71,31 @@ export const ElementEditor = ({
     const vertices = useGraphState('vertex');
     const metavertices = useGraphState('metavertex');
 
-    const vertexOptions = useMemo(() => {
-        return [...vertices, ...metavertices].map(({ id }) => id);
-    }, [vertices, metavertices]);
+    const vertexOptions = useMemo(
+        () =>
+            [...vertices, ...metavertices].map(
+                serializedElementToGraphElementOption,
+            ),
+        [vertices, metavertices],
+    );
 
     const { pushUndo } = useHistory();
     const log = useActivityLog();
 
     const [pendingType, setPendingType] = useState<ElementType | null>(null);
+    const [nameValue, setNameValue] = useState('');
 
     const displayType = pendingType ?? element?.type;
+
+    const syncedNameStr = useMemo(() => {
+        if (!element) return '';
+        if (!('name' in element.attributes)) return '';
+        return String(element.attributes.name.value);
+    }, [element]);
+
+    useEffect(() => {
+        setNameValue(syncedNameStr);
+    }, [elementId, syncedNameStr]);
 
     const handleTypeChange = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,13 +106,27 @@ export const ElementEditor = ({
 
     const handleFormSubmit = useCallback(
         (data: ElementFormSubmitData) => {
-            log(ActionNames.APPLY_ELEMENT, {
-                id: element?.id,
-                type: pendingType ?? element?.type,
-                ...data,
-            });
-
             if (!element) return;
+
+            const existingName: AttributeValue | undefined =
+                'name' in element.attributes
+                    ? element.attributes.name
+                    : undefined;
+
+            const dataWithName: ElementFormSubmitData = {
+                ...data,
+                attributes: mergeNameIntoAttributes(
+                    data.attributes,
+                    nameValue,
+                    existingName,
+                ),
+            };
+
+            log(ActionNames.APPLY_ELEMENT, {
+                id: element.id,
+                type: pendingType ?? element.type,
+                ...dataWithName,
+            });
 
             const prevType = element.type;
             const nextType: ElementType = pendingType ?? element.type;
@@ -106,7 +138,7 @@ export const ElementEditor = ({
             }
             setPendingType(null);
 
-            const { children, parents, ...patch } = data;
+            const { children, parents, ...patch } = dataWithName;
             // Non-meta types don't carry their own children; mirror that in
             // both the applied state and the action so undo/redo stay
             // symmetrical.
@@ -115,7 +147,7 @@ export const ElementEditor = ({
                     ? children
                     : [];
             const appliedData: ElementSnapshot = {
-                ...data,
+                ...dataWithName,
                 children: childrenToSet,
             };
 
@@ -141,7 +173,16 @@ export const ElementEditor = ({
                 });
             }
         },
-        [log, element, pendingType, update, setRelations, changeType, pushUndo],
+        [
+            log,
+            element,
+            pendingType,
+            nameValue,
+            update,
+            setRelations,
+            changeType,
+            pushUndo,
+        ],
     );
 
     const handleDelete = useCallback(() => {
@@ -173,11 +214,13 @@ export const ElementEditor = ({
         <>
             <Form.Group>
                 <Form.Field
-                    label="ID"
+                    label="Имя"
                     component={Input}
                     size="s"
-                    value={element.id}
-                    disabled
+                    value={nameValue}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setNameValue(e.target.value);
+                    }}
                 />
                 <Form.Field
                     label="Тип"
@@ -187,7 +230,7 @@ export const ElementEditor = ({
                     onChange={handleTypeChange}
                 >
                     {ELEMENT_TYPES.map((type) => (
-                        <Select.Option key={type}>{type}</Select.Option>
+                        <Select.Option key={type} value={type} />
                     ))}
                 </Form.Field>
             </Form.Group>

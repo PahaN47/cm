@@ -10,10 +10,12 @@ import type { GraphStore } from './graphStore';
 import type {
     ElementType,
     GraphElement,
+    GraphElementOption,
     RelationType,
     SerializedElement,
 } from './types';
 import { createGraphParser, type GraphParser } from './parseState';
+import { serializedElementToGraphElementOption } from '../lib/graphElementOption';
 
 interface GraphContextValue {
     elements: SerializedElement[];
@@ -87,19 +89,25 @@ export function useGraphElement(id: string) {
 
     const element = getElementById(id);
 
-    const availableChildren = useMemo(() => {
-        return elements.filter((el) => el.id !== id).map((el) => el.id);
-    }, [elements, id]);
+    const availableChildren = useMemo(
+        (): GraphElementOption[] =>
+            elements
+                .filter((el) => el.id !== id)
+                .map(serializedElementToGraphElementOption),
+        [elements, id],
+    );
 
-    const availableParents = useMemo(() => {
-        return elements
-            .filter(
-                ({ id: elId, type }) =>
-                    (type === 'metavertex' || type === 'metaedge') &&
-                    elId !== id,
-            )
-            .map(({ id }) => id);
-    }, [elements, id]);
+    const availableParents = useMemo(
+        (): GraphElementOption[] =>
+            elements
+                .filter(
+                    ({ id: elId, type }) =>
+                        (type === 'metavertex' || type === 'metaedge') &&
+                        elId !== id,
+                )
+                .map(serializedElementToGraphElementOption),
+        [elements, id],
+    );
 
     const update = useCallback(
         (patch: Partial<GraphElement>) => {

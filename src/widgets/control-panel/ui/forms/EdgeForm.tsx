@@ -64,18 +64,21 @@ export const EdgeForm = ({
     const vertexOptionNodes = useMemo(
         () =>
             vertexOptions
-                .filter((option) => option !== element.id)
-                .map((option) => (
-                    <Select.Option key={option}>{option}</Select.Option>
+                .filter(({ id }) => id !== element.id)
+                .map(({ id, name }) => (
+                    <Select.Option key={id} value={id}>
+                        {name}
+                    </Select.Option>
                 )),
         [vertexOptions, element.id],
     );
 
     const parents = watch('parents');
 
-    const filteredParentOptions = useMemo(() => {
-        return parentOptions.filter((id) => !parents.includes(id));
-    }, [parentOptions, parents]);
+    const filteredParentOptions = useMemo(
+        () => parentOptions.filter(({ id }) => !parents.includes(id)),
+        [parentOptions, parents],
+    );
 
     useEffect(() => {
         reset(buildDefaults(element));
@@ -207,6 +210,7 @@ export const EdgeForm = ({
                         value={field.value}
                         onChange={field.onChange}
                         options={filteredParentOptions}
+                        allOptions={parentOptions}
                     />
                 )}
             />

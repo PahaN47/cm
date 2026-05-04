@@ -36,9 +36,10 @@ export const VertexForm = ({
 
     const parents = watch('parents');
 
-    const filteredParentOptions = useMemo(() => {
-        return parentOptions.filter((id) => !parents.includes(id));
-    }, [parentOptions, parents]);
+    const filteredParentOptions = useMemo(
+        () => parentOptions.filter(({ id }) => !parents.includes(id)),
+        [parentOptions, parents],
+    );
 
     useEffect(() => {
         reset({
@@ -82,6 +83,7 @@ export const VertexForm = ({
                         value={field.value}
                         onChange={field.onChange}
                         options={filteredParentOptions}
+                        allOptions={parentOptions}
                     />
                 )}
             />

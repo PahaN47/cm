@@ -61,9 +61,11 @@ export const MetaEdgeForm = ({
     const vertexOptionNodes = useMemo(
         () =>
             vertexOptions
-                .filter((option) => option !== element.id)
-                .map((option) => (
-                    <Select.Option key={option}>{option}</Select.Option>
+                .filter(({ id }) => id !== element.id)
+                .map(({ id, name }) => (
+                    <Select.Option key={id} value={id}>
+                        {name}
+                    </Select.Option>
                 )),
         [element.id, vertexOptions],
     );
@@ -71,13 +73,15 @@ export const MetaEdgeForm = ({
     const children = watch('children');
     const parents = watch('parents');
 
-    const filteredChildrenOptions = useMemo(() => {
-        return childrenOptions.filter((id) => !children.includes(id));
-    }, [childrenOptions, children]);
+    const filteredChildrenOptions = useMemo(
+        () => childrenOptions.filter(({ id }) => !children.includes(id)),
+        [childrenOptions, children],
+    );
 
-    const filteredParentOptions = useMemo(() => {
-        return parentOptions.filter((id) => !parents.includes(id));
-    }, [parentOptions, parents]);
+    const filteredParentOptions = useMemo(
+        () => parentOptions.filter(({ id }) => !parents.includes(id)),
+        [parentOptions, parents],
+    );
 
     useEffect(() => {
         reset(buildDefaults(element));
@@ -203,6 +207,7 @@ export const MetaEdgeForm = ({
                         value={field.value}
                         onChange={field.onChange}
                         options={filteredChildrenOptions}
+                        allOptions={childrenOptions}
                         defaultCollapsed
                     />
                 )}
@@ -217,6 +222,7 @@ export const MetaEdgeForm = ({
                         value={field.value}
                         onChange={field.onChange}
                         options={filteredParentOptions}
+                        allOptions={parentOptions}
                     />
                 )}
             />

@@ -8,6 +8,8 @@ export {
 } from './model';
 export { parseMetagraphXml } from './lib/parseMetagraphXml';
 export { buildGraphElement } from './lib/buildGraphElement';
+export { mergeNameIntoAttributes } from './lib/mergeNameIntoAttributes';
+export { serializedElementToGraphElementOption } from './lib/graphElementOption';
 export type {
     AttributeType,
     AttributeValue,
@@ -25,4 +27,5 @@ export type {
     ParsedGraph,
     SerializedElement,
     ElementSnapshot,
+    GraphElementOption,
 } from './model';

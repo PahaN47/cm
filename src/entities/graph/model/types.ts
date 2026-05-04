@@ -66,6 +66,12 @@ export interface SerializedElement {
     parents: string[];
 }
 
+/** Element id plus display `name` string (from `name` attribute when set, otherwise `id`). */
+export type GraphElementOption = {
+    id: string;
+    name: string;
+};
+
 // Mutable, type-agnostic view of an element. Anything that wants to round-trip
 // an element's editable state (form submission, history snapshots, recreation
 // after deletion) should use this shape so the same payload can be replayed

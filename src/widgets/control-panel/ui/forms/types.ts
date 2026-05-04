@@ -1,6 +1,7 @@
 import type {
     AttributeType,
     ElementSnapshot,
+    GraphElementOption,
     SerializedElement,
 } from '@/entities/graph';
 
@@ -17,9 +18,9 @@ export type ElementFormSubmitData = ElementSnapshot;
 
 export interface ElementFormProps {
     element: SerializedElement;
-    childrenOptions: string[];
-    parentOptions: string[];
-    vertexOptions: string[];
+    childrenOptions: GraphElementOption[];
+    parentOptions: GraphElementOption[];
+    vertexOptions: GraphElementOption[];
     onSubmit: (data: ElementFormSubmitData) => void;
     submitLabel?: string;
 }

@@ -14,11 +14,12 @@ import './Select.scss';
 const b = cn('Select');
 
 interface SelectOptionProps {
-    children: string;
+    value: string;
+    children?: string;
 }
 
-const SelectOption = ({ children }: SelectOptionProps) => {
-    return <option value={children}>{children}</option>;
+const SelectOption = ({ value, children }: SelectOptionProps) => {
+    return <option value={value}>{children}</option>;
 };
 
 type OptionElement = React.ReactElement<SelectOptionProps, typeof SelectOption>;
@@ -40,7 +41,10 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
         const options = useMemo(
             () =>
                 (React.Children.toArray(children) as OptionElement[]).map(
-                    (child) => child.props.children,
+                    (child) => ({
+                        value: child.props.value,
+                        label: child.props.children || child.props.value,
+                    }),
                 ),
             [children],
         );
@@ -49,8 +53,11 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
             if (!filter) return options;
             const lower = filter.toLowerCase();
             return options
-                .filter((o) => o.toLowerCase().includes(lower))
-                .sort((a, b) => a.indexOf(lower) - b.indexOf(lower));
+                .filter(({ label }) => label.toLowerCase().includes(lower))
+                .sort(
+                    ({ label: a }, { label: b }) =>
+                        a.indexOf(lower) - b.indexOf(lower),
+                );
         }, [options, filter]);
 
         const handleFocus = useCallback(
@@ -119,7 +126,7 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
                 />
                 {open && filtered.length > 0 && (
                     <ul className={b('dropdown')}>
-                        {filtered.map((option) => (
+                        {filtered.map(({ value: option, label }) => (
                             <li
                                 key={option}
                                 className={b('option', {
@@ -128,7 +135,7 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
                                 onMouseDown={(e) => e.preventDefault()}
                                 onClick={() => handleSelect(option)}
                             >
-                                {option}
+                                {label}
                             </li>
                         ))}
                     </ul>

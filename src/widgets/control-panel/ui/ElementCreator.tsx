@@ -7,6 +7,8 @@ import {
     type ElementType,
     type SerializedElement,
 } from '@/entities/graph';
+import { serializedElementToGraphElementOption } from '@/entities/graph/lib/graphElementOption';
+import { mergeNameIntoAttributes } from '@/entities/graph/lib/mergeNameIntoAttributes';
 import { ELEMENT_TYPES } from '@/shared/constants/graph';
 import { Form } from '@/shared/ui/Form';
 import { Input } from '@/shared/ui/Input';
@@ -53,27 +55,38 @@ export const ElementCreator = ({ onSubmit }: ElementCreatorProps) => {
     const { pushUndo } = useHistory();
     const log = useActivityLog();
 
-    const childrenOptions = useMemo(() => {
-        return elements
-            .filter(({ type }) => type !== 'vertex' && type !== 'edge')
-            .map(({ id }) => id);
-    }, [elements]);
+    const childrenOptions = useMemo(
+        () =>
+            elements
+                .filter(
+                    ({ type }) => type !== 'vertex' && type !== 'edge',
+                )
+                .map(serializedElementToGraphElementOption),
+        [elements],
+    );
 
-    const parentOptions = useMemo(() => {
-        return elements
-            .filter(({ type }) => type === 'metavertex' || type === 'metaedge')
-            .map(({ id }) => id);
-    }, [elements]);
+    const parentOptions = useMemo(
+        () =>
+            elements
+                .filter(
+                    ({ type }) => type === 'metavertex' || type === 'metaedge',
+                )
+                .map(serializedElementToGraphElementOption),
+        [elements],
+    );
 
     const vertices = useGraphState('vertex');
     const metavertices = useGraphState('metavertex');
 
-    const vertexOptions = useMemo(() => {
-        return [...vertices, ...metavertices].map(({ id }) => id);
-    }, [vertices, metavertices]);
+    const vertexOptions = useMemo(
+        () =>
+            [...vertices, ...metavertices].map(
+                serializedElementToGraphElementOption,
+            ),
+        [vertices, metavertices],
+    );
 
-    const [id, setId] = useState('');
-    const [idError, setIdError] = useState(false);
+    const [name, setName] = useState('');
     const [type, setType] = useState<ElementType>('vertex');
     const [formKey, setFormKey] = useState(0);
 
@@ -81,39 +94,42 @@ export const ElementCreator = ({ onSubmit }: ElementCreatorProps) => {
 
     const handleCreate = useCallback(
         (data: ElementFormSubmitData) => {
-            const trimmedId = id.trim();
+            const newId = crypto.randomUUID();
+            const dataWithName: ElementFormSubmitData = {
+                ...data,
+                attributes: mergeNameIntoAttributes(
+                    data.attributes,
+                    name,
+                ),
+            };
 
-            const existingElement = store.getElement(trimmedId);
-            if (existingElement) {
-                setIdError(true);
-                return;
+            log(ActionNames.CREATE_ELEMENT, {
+                id: newId,
+                type,
+                ...dataWithName,
+            });
+
+            store.addElement(buildGraphElement(newId, type, dataWithName));
+
+            if (dataWithName.children.length) {
+                store.setRelations('parentChildren', newId, dataWithName.children);
             }
-
-            log(ActionNames.CREATE_ELEMENT, { id: trimmedId, type, ...data });
-
-            if (!trimmedId) return;
-
-            store.addElement(buildGraphElement(trimmedId, type, data));
-
-            if (data.children.length) {
-                store.setRelations('parentChildren', trimmedId, data.children);
-            }
-            if (data.parents.length) {
-                store.setRelations('childParents', trimmedId, data.parents);
+            if (dataWithName.parents.length) {
+                store.setRelations('childParents', newId, dataWithName.parents);
             }
 
             pushUndo({
                 type: 'add',
-                elementId: trimmedId,
+                elementId: newId,
                 elementType: type,
-                data,
+                data: dataWithName,
             });
 
-            setId('');
+            setName('');
             setFormKey((k) => k + 1);
-            onSubmit?.(trimmedId);
+            onSubmit?.(newId);
         },
-        [log, id, store, type, pushUndo, onSubmit],
+        [log, name, store, type, pushUndo, onSubmit],
     );
 
     const FormComponent = FORM_MAP[type];
@@ -122,14 +138,12 @@ export const ElementCreator = ({ onSubmit }: ElementCreatorProps) => {
         <>
             <Form.Group>
                 <Form.Field
-                    label="ID"
+                    label="Имя"
                     component={Input}
                     size="s"
-                    value={id}
-                    error={idError}
+                    value={name}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        setId(e.target.value);
-                        setIdError(false);
+                        setName(e.target.value);
                     }}
                 />
                 <Form.Field
@@ -142,7 +156,7 @@ export const ElementCreator = ({ onSubmit }: ElementCreatorProps) => {
                     }}
                 >
                     {ELEMENT_TYPES.map((t) => (
-                        <Select.Option key={t}>{t}</Select.Option>
+                        <Select.Option key={t} value={t} />
                     ))}
                 </Form.Field>
             </Form.Group>

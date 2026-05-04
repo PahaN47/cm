@@ -28,6 +28,8 @@ const VALIDATORS = {
     float: validateFloat,
 } as const;
 
+const isReservedAttributeKey = (label: string) => label.trim() === 'name';
+
 interface AttributesFieldsProps<T extends FieldValues> {
     control: Control<T>;
     register: UseFormRegister<T>;
@@ -52,12 +54,19 @@ export const AttributesFields = <T extends FieldValues>({
 
     const [newLabel, setNewLabel] = useState('');
     const [newType, setNewType] = useState<AttributeType>('string');
+    const [reservedKeyError, setReservedKeyError] = useState(false);
 
     const handleAdd = useCallback(() => {
         log(ActionNames.ADD_ATTRIBUTE, { label: newLabel, type: newType });
 
         const trimmed = newLabel.trim();
         if (!trimmed) return;
+        if (isReservedAttributeKey(trimmed)) {
+            setReservedKeyError(true);
+            return;
+        }
+        setReservedKeyError(false);
+
         append({
             label: trimmed,
             type: newType,
@@ -148,10 +157,12 @@ export const AttributesFields = <T extends FieldValues>({
                     label="Название"
                     component={Input}
                     size="s"
+                    error={reservedKeyError}
                     value={newLabel}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        setNewLabel(e.target.value)
-                    }
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setReservedKeyError(false);
+                        setNewLabel(e.target.value);
+                    }}
                 />
                 <Form.Field
                     label="Тип"
@@ -161,7 +172,7 @@ export const AttributesFields = <T extends FieldValues>({
                     onChange={handleTypeChange}
                 >
                     {ATTRIBUTE_TYPES.map((type) => (
-                        <Select.Option key={type}>{type}</Select.Option>
+                        <Select.Option key={type} value={type} />
                     ))}
                 </Form.Field>
                 <Button type="button" size="s" onClick={handleAdd}>

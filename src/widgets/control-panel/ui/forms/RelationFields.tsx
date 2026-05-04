@@ -1,5 +1,6 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
+import type { GraphElementOption } from '@/entities/graph';
 import { cn } from '@/shared/lib/cn';
 import { Form } from '@/shared/ui/Form';
 import { Input } from '@/shared/ui/Input';
@@ -16,7 +17,13 @@ interface RelationFieldsProps {
     label: string;
     value: string[];
     onChange: (ids: string[]) => void;
-    options?: string[];
+    /**
+     * Options shown in the add dropdown (often filtered). Chip labels use
+     * `allOptions` when set, otherwise this list.
+     */
+    options?: GraphElementOption[];
+    /** Full list for resolving chip labels when `options` is filtered. */
+    allOptions?: GraphElementOption[];
     defaultCollapsed?: boolean;
 }
 
@@ -26,6 +33,7 @@ export const RelationFields = ({
     value,
     onChange,
     options,
+    allOptions,
     defaultCollapsed = false,
 }: RelationFieldsProps) => {
     const log = useActivityLog();
@@ -60,6 +68,17 @@ export const RelationFields = ({
         setCollapsed((prev) => !prev);
     }, []);
 
+    const idToLabel = useMemo(() => {
+        const src = allOptions ?? options;
+        if (!src) return undefined;
+        return new Map(src.map(({ id, name }) => [id, name]));
+    }, [allOptions, options]);
+
+    const selectableOptions = useMemo(
+        () => options?.filter(({ id }) => !value.includes(id)) ?? [],
+        [options, value],
+    );
+
     const renderInput = () => {
         const baseProps: InputProps = {
             size: 's',
@@ -75,8 +94,10 @@ export const RelationFields = ({
 
         return (
             <Select {...baseProps}>
-                {options.map((option) => (
-                    <Select.Option key={option}>{option}</Select.Option>
+                {selectableOptions.map(({ id, name }) => (
+                    <Select.Option key={id} value={id}>
+                        {name}
+                    </Select.Option>
                 ))}
             </Select>
         );
@@ -120,7 +141,7 @@ export const RelationFields = ({
                                             setSelectedElementId(id);
                                         }}
                                     >
-                                        {id}
+                                        {idToLabel?.get(id) ?? id}
                                     </Button>
                                     <Button
                                         type="button"

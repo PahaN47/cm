@@ -38,15 +38,15 @@ export const MetaVertexForm = ({
     const children = watch('children');
     const parents = watch('parents');
 
-    const filteredChildrenOptions = useMemo(() => {
-        return childrenOptions.filter((id) => !children.includes(id));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [childrenOptions, children, children.length]);
+    const filteredChildrenOptions = useMemo(
+        () => childrenOptions.filter(({ id }) => !children.includes(id)),
+        [childrenOptions, children],
+    );
 
-    const filteredParentOptions = useMemo(() => {
-        return parentOptions.filter((id) => !parents.includes(id));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [parentOptions, parents, parents.length]);
+    const filteredParentOptions = useMemo(
+        () => parentOptions.filter(({ id }) => !parents.includes(id)),
+        [parentOptions, parents],
+    );
 
     useEffect(() => {
         reset({
@@ -90,6 +90,7 @@ export const MetaVertexForm = ({
                         value={field.value}
                         onChange={field.onChange}
                         options={filteredChildrenOptions}
+                        allOptions={childrenOptions}
                         defaultCollapsed
                     />
                 )}
@@ -104,6 +105,7 @@ export const MetaVertexForm = ({
                         value={field.value}
                         onChange={field.onChange}
                         options={filteredParentOptions}
+                        allOptions={parentOptions}
                     />
                 )}
             />

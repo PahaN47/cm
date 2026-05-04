@@ -4,12 +4,14 @@ import type { AttributeFormField } from './types';
 export function buildAttributeDefaults(
     element: SerializedElement,
 ): AttributeFormField[] {
-    return Object.entries(element.attributes).map(([key, attr]) => ({
-        label: key,
-        type: attr.type,
-        system: attr.system,
-        value: String(attr.value),
-    }));
+    return Object.entries(element.attributes)
+        .filter(([key]) => key !== 'name')
+        .map(([key, attr]) => ({
+            label: key,
+            type: attr.type,
+            system: attr.system,
+            value: String(attr.value),
+        }));
 }
 
 export function parseFormAttributes(
