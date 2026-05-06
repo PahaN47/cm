@@ -59,7 +59,13 @@ export const EdgeForm = ({
     const { control, watch, register, handleSubmit, reset, setValue } =
         useForm<EdgeFormValues>({
             defaultValues,
+            mode: 'onTouched',
         });
+
+    const endpointRules = {
+        validate: (v: string) =>
+            v.trim() !== '' || 'Выберите вершину',
+    } as const;
 
     const vertexOptionNodes = useMemo(
         () =>
@@ -110,7 +116,8 @@ export const EdgeForm = ({
                 <Controller
                     name="source"
                     control={control}
-                    render={({ field }) => (
+                    rules={endpointRules}
+                    render={({ field, fieldState }) => (
                         <div
                             style={{
                                 display: 'grid',
@@ -125,6 +132,7 @@ export const EdgeForm = ({
                                 size="s"
                                 name={field.name}
                                 value={field.value}
+                                error={Boolean(fieldState.error)}
                                 onChange={(
                                     e: React.ChangeEvent<HTMLInputElement>,
                                 ) => field.onChange(e.target.value)}
@@ -147,7 +155,8 @@ export const EdgeForm = ({
                 <Controller
                     name="target"
                     control={control}
-                    render={({ field }) => (
+                    rules={endpointRules}
+                    render={({ field, fieldState }) => (
                         <div
                             style={{
                                 display: 'grid',
@@ -162,6 +171,7 @@ export const EdgeForm = ({
                                 size="s"
                                 name={field.name}
                                 value={field.value}
+                                error={Boolean(fieldState.error)}
                                 onChange={(
                                     e: React.ChangeEvent<HTMLInputElement>,
                                 ) => field.onChange(e.target.value)}

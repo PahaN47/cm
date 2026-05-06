@@ -145,6 +145,18 @@ export class GraphStore {
         const wasEdge = this.isEdge(oldElement);
         const willBeEdge = newType === 'edge' || newType === 'metaedge';
 
+        if (willBeEdge && !wasEdge) {
+            const incident = this.nodeEdges.get(id);
+            if (incident?.size) {
+                const edgeIds = [...incident]
+                    .filter((el) => this.isEdge(el))
+                    .map((el) => el.id);
+                for (const edgeId of edgeIds) {
+                    this.removeElement(edgeId);
+                }
+            }
+        }
+
         let newElement: GraphElement;
         if (willBeEdge) {
             newElement = {
@@ -254,11 +266,7 @@ export class GraphStore {
         this.notify();
     }
 
-    removeRelationById(
-        type: RelationType,
-        fromId: string,
-        toId: string,
-    ): void {
+    removeRelationById(type: RelationType, fromId: string, toId: string): void {
         const toElement = this.elements.get(toId);
         if (!toElement) return;
 
@@ -290,9 +298,17 @@ export class GraphStore {
             for (const el of currentSet) {
                 dirty.push(el.id);
                 if (type === 'parentChildren') {
-                    this.removeFromRelationSet('childParents', el.id, fromElement);
+                    this.removeFromRelationSet(
+                        'childParents',
+                        el.id,
+                        fromElement,
+                    );
                 } else if (type === 'childParents') {
-                    this.removeFromRelationSet('parentChildren', el.id, fromElement);
+                    this.removeFromRelationSet(
+                        'parentChildren',
+                        el.id,
+                        fromElement,
+                    );
                 }
             }
             map.delete(fromId);

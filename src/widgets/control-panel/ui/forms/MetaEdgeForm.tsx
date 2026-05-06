@@ -56,7 +56,15 @@ export const MetaEdgeForm = ({
     );
 
     const { control, watch, register, handleSubmit, reset, setValue } =
-        useForm<MetaEdgeFormValues>({ defaultValues });
+        useForm<MetaEdgeFormValues>({
+            defaultValues,
+            mode: 'onTouched',
+        });
+
+    const endpointRules = {
+        validate: (v: string) =>
+            v.trim() !== '' || 'Выберите вершину',
+    } as const;
 
     const vertexOptionNodes = useMemo(
         () =>
@@ -113,7 +121,8 @@ export const MetaEdgeForm = ({
                 <Controller
                     name="source"
                     control={control}
-                    render={({ field }) => (
+                    rules={endpointRules}
+                    render={({ field, fieldState }) => (
                         <div
                             style={{
                                 display: 'grid',
@@ -128,6 +137,7 @@ export const MetaEdgeForm = ({
                                 size="s"
                                 name={field.name}
                                 value={field.value}
+                                error={Boolean(fieldState.error)}
                                 onChange={(
                                     e: React.ChangeEvent<HTMLInputElement>,
                                 ) => field.onChange(e.target.value)}
@@ -150,7 +160,8 @@ export const MetaEdgeForm = ({
                 <Controller
                     name="target"
                     control={control}
-                    render={({ field }) => (
+                    rules={endpointRules}
+                    render={({ field, fieldState }) => (
                         <div
                             style={{
                                 display: 'grid',
@@ -165,6 +176,7 @@ export const MetaEdgeForm = ({
                                 size="s"
                                 name={field.name}
                                 value={field.value}
+                                error={Boolean(fieldState.error)}
                                 onChange={(
                                     e: React.ChangeEvent<HTMLInputElement>,
                                 ) => field.onChange(e.target.value)}
