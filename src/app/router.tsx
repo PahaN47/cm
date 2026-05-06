@@ -1,7 +1,8 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createHashRouter } from 'react-router-dom';
 import { AuthPage, HomePage } from '@/pages/home';
 
-export const router = createBrowserRouter([
+/** Hash routing so static builds work when opening `index.html` (file:// or `/index.html` on a static server). */
+export const router = createHashRouter([
     {
         path: '/',
         element: <HomePage />,

@@ -110,3 +110,10 @@ export function parseMetagraphXml(xml: string): ParsedGraph {
 
     return { elements, relations };
 }
+
+/** Minimal valid metagraph document with no vertices or edges. */
+export const EMPTY_METAGRAPH_XML: string = `<?xml version="1.0" encoding="utf-8"?>
+<MetagraphRoot>
+<Metagraph></Metagraph>
+</MetagraphRoot>
+`;

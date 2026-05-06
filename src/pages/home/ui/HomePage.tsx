@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
+    EMPTY_METAGRAPH_XML,
     GraphStore,
     GraphStateProvider,
     parseMetagraphXml,
 } from '@/entities/graph';
-import { fetchGraph } from '@/shared/api/fetchGraph';
 import { Graph } from '@/widgets/graph';
 import { ControlPanel } from '@/widgets/control-panel';
 import { Layout } from '@/shared/ui/Layout';
@@ -93,15 +93,10 @@ const HomeContent = () => {
 };
 
 export const HomePage = () => {
-    const store = useMemo(() => new GraphStore(), []);
-
-    useEffect(() => {
-        const load = async () => {
-            const xml = await fetchGraph();
-            store.load(parseMetagraphXml(xml));
-        };
-        load().catch(console.error);
-    }, [store]);
+    const store = useMemo(
+        () => new GraphStore(parseMetagraphXml(EMPTY_METAGRAPH_XML)),
+        [],
+    );
 
     return (
         <GraphStateProvider store={store}>

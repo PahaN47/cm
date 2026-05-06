@@ -1,7 +1,6 @@
 import { defineConfig } from "@rspack/cli";
 import { rspack } from "@rspack/core";
 import ReactRefreshPlugin from "@rspack/plugin-react-refresh";
-import fs from "fs";
 import path from "path";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -11,7 +10,8 @@ export default defineConfig({
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "[name].[contenthash].js",
-    publicPath: "/",
+    // Relative runtime URLs so opening dist/index.html via file:// still loads JS/CSS.
+    publicPath: "auto",
     clean: true,
   },
   resolve: {
@@ -84,20 +84,5 @@ export default defineConfig({
     port: 3000,
     hot: true,
     historyApiFallback: true,
-    setupMiddlewares(middlewares) {
-      middlewares.unshift({
-        name: "mock-api-graph",
-        path: "/api/graph",
-        middleware: (_req: any, res: any) => {
-          const xml = fs.readFileSync(
-            path.resolve(__dirname, "mock/example_courses_iu5.xml"),
-            "utf-8",
-          );
-          res.setHeader("Content-Type", "application/xml");
-          res.end(xml);
-        },
-      });
-      return middlewares;
-    },
   },
 });
