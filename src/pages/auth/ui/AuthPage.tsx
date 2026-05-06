@@ -1,6 +1,5 @@
 import { AuthState, useAuth } from '@/app/auth';
 import { cn } from '@/shared/lib/cn';
-import { Theme, useTheme } from '@/app/theme';
 import { Button } from '@/shared/ui/Button';
 import { Form } from '@/shared/ui/Form';
 import { Input } from '@/shared/ui/Input';
@@ -9,6 +8,7 @@ import { validateRequired } from '@/widgets/control-panel/ui/forms/validators';
 import { useCallback } from 'react';
 import { useForm, useFormState } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { ThemeToggleButton } from '@/shared/ui/ThemeToggleButton';
 
 import './AuthPage.scss';
 
@@ -18,7 +18,6 @@ export const AuthPage = () => {
     const navigate = useNavigate();
 
     const { setLogin } = useAuth();
-    const { theme, setTheme } = useTheme();
 
     const { control, register, handleSubmit } = useForm<Required<AuthState>>({
         defaultValues: { login: '' },
@@ -57,15 +56,7 @@ export const AuthPage = () => {
                 col={[1, 12]}
                 style={{ display: 'flex', alignItems: 'center', padding: 16 }}
             >
-                <Button
-                    onClick={() =>
-                        setTheme(
-                            theme === Theme.Light ? Theme.Dark : Theme.Light,
-                        )
-                    }
-                >
-                    Тема
-                </Button>
+                <ThemeToggleButton />
             </Layout.Panel>
         </Layout>
     );

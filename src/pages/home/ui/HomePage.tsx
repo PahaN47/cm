@@ -19,8 +19,8 @@ import {
     useSelectedElementActions,
     useSelectedElementId,
 } from '@/features/element-selection';
-import { Theme, useTheme } from '@/app/theme';
-import { Button } from '@/shared/ui/Button';
+import { ThemeToggleButton } from '@/shared/ui/ThemeToggleButton';
+import { DownloadGraphStateButton } from './DownloadGraphStateButton';
 import { useAuth } from '@/app/auth';
 import { useNavigate } from 'react-router-dom';
 
@@ -32,8 +32,6 @@ const HomeContent = () => {
     const navigate = useNavigate();
 
     const { login } = useAuth();
-    const { theme, setTheme } = useTheme();
-
     const { clearPendingFormHistory } = useHistory();
 
     const selectedElementId = useSelectedElementId();
@@ -79,17 +77,16 @@ const HomeContent = () => {
             <Layout.Panel
                 row={[11, 12]}
                 col={[1, 12]}
-                style={{ display: 'flex', alignItems: 'center', padding: 16 }}
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 12,
+                    padding: 16,
+                }}
             >
-                <Button
-                    onClick={() =>
-                        setTheme(
-                            theme === Theme.Light ? Theme.Dark : Theme.Light,
-                        )
-                    }
-                >
-                    Тема
-                </Button>
+                <ThemeToggleButton />
+                <DownloadGraphStateButton />
             </Layout.Panel>
         </Layout>
     );
