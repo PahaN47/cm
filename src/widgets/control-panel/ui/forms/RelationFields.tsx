@@ -12,6 +12,8 @@ import { ActionNames, useActivityLog } from '@/features/activity-log';
 
 const formCn = cn('Form');
 
+const EMPTY_IDS: string[] = [];
+
 interface RelationFieldsProps {
     type: 'parents' | 'children';
     label: string;
@@ -42,19 +44,24 @@ export const RelationFields = ({
     const [collapsed, setCollapsed] = useState(defaultCollapsed);
     const [newId, setNewId] = useState('');
 
+    const selectedIds = useMemo(
+        () => (Array.isArray(value) ? value : EMPTY_IDS),
+        [value],
+    );
+
     const handleAdd = useCallback(() => {
         const trimmed = newId.trim();
 
-        if (!trimmed || value.includes(trimmed)) return;
-        onChange([...value, trimmed]);
+        if (!trimmed || selectedIds.includes(trimmed)) return;
+        onChange([...selectedIds, trimmed]);
         setNewId('');
-    }, [newId, value, onChange]);
+    }, [newId, selectedIds, onChange]);
 
     const handleRemove = useCallback(
         (id: string) => {
-            onChange(value.filter((v) => v !== id));
+            onChange(selectedIds.filter((v) => v !== id));
         },
-        [onChange, value],
+        [onChange, selectedIds],
     );
 
     const handleInputChange = useCallback(
@@ -75,8 +82,8 @@ export const RelationFields = ({
     }, [allOptions, options]);
 
     const selectableOptions = useMemo(
-        () => options?.filter(({ id }) => !value.includes(id)) ?? [],
-        [options, value],
+        () => options?.filter(({ id }) => !selectedIds.includes(id)) ?? [],
+        [options, selectedIds],
     );
 
     const renderInput = () => {
@@ -111,13 +118,13 @@ export const RelationFields = ({
                 style={{ cursor: 'pointer', userSelect: 'none' }}
             >
                 {collapsed ? '▸' : '▾'} {label}
-                {collapsed && value.length > 0 && ` (${value.length})`}
+                {collapsed && selectedIds.length > 0 && ` (${selectedIds.length})`}
             </label>
             {!collapsed && (
                 <>
-                    {value.length > 0 && (
+                    {selectedIds.length > 0 && (
                         <Form.Group>
-                            {value.map((id) => (
+                            {selectedIds.map((id) => (
                                 <div
                                     key={id}
                                     style={{

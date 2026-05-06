@@ -35,30 +35,54 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
     ) => {
         const [open, setOpen] = useState(false);
         const [filter, setFilter] = useState('');
-        const innerRef = useRef<HTMLInputElement>(null);
-        const inputRef = ref || innerRef;
+        const inputDomRef = useRef<HTMLInputElement | null>(null);
+
+        const setInputRef = useCallback(
+            (node: HTMLInputElement | null) => {
+                inputDomRef.current = node;
+                if (typeof ref === 'function') {
+                    ref(node);
+                } else if (ref != null) {
+                    ref.current = node;
+                }
+            },
+            [ref],
+        );
 
         const options = useMemo(
             () =>
                 (React.Children.toArray(children) as OptionElement[]).map(
                     (child) => ({
                         value: child.props.value,
-                        label: child.props.children || child.props.value,
+                        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-conversion
+                        label: String(
+                            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                            child.props.children ?? child.props.value ?? '',
+                        ),
                     }),
                 ),
             [children],
         );
 
         const filtered = useMemo(() => {
-            if (!filter) return options;
-            const lower = filter.toLowerCase();
+            const trimmed = filter.trim();
+            if (!trimmed) return options;
+            const lower = trimmed.toLowerCase();
             return options
                 .filter(({ label }) => label.toLowerCase().includes(lower))
-                .sort(
-                    ({ label: a }, { label: b }) =>
-                        a.indexOf(lower) - b.indexOf(lower),
-                );
+                .sort((a, b) => {
+                    const ia = a.label.toLowerCase().indexOf(lower);
+                    const ib = b.label.toLowerCase().indexOf(lower);
+                    return ia - ib;
+                });
         }, [options, filter]);
+
+        const displayTextForValue = useMemo(() => {
+            const raw = String(value ?? '');
+            if (!raw) return '';
+            const row = options.find((o) => o.value === raw);
+            return row?.label ?? raw;
+        }, [options, value]);
 
         const handleFocus = useCallback(
             (e: React.FocusEvent<HTMLInputElement>) => {
@@ -90,21 +114,16 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
             (option: string) => {
                 setOpen(false);
                 setFilter('');
-                innerRef.current?.blur();
-                if (onChange) {
-                    const nativeEvent = new Event('change', { bubbles: true });
-                    Object.defineProperty(nativeEvent, 'target', {
-                        value: { value: option },
-                    });
-                    onChange(
-                        nativeEvent as unknown as React.ChangeEvent<HTMLInputElement>,
-                    );
-                }
+                inputDomRef.current?.blur();
+                onChange?.({
+                    target: { value: option },
+                    currentTarget: { value: option },
+                } as React.ChangeEvent<HTMLInputElement>);
             },
             [onChange],
         );
 
-        const displayValue = open ? filter : String(value || '');
+        const displayValue = open ? filter : displayTextForValue;
 
         return (
             <div
@@ -114,13 +133,13 @@ const Select = forwardRef<HTMLInputElement, SelectProps>(
             >
                 <Input
                     {...rest}
-                    ref={inputRef}
+                    ref={setInputRef}
                     value={displayValue}
                     onChange={handleInput}
                     onFocus={handleFocus}
                     placeholder={
                         open
-                            ? String(value || '') || rest.placeholder
+                            ? displayTextForValue || rest.placeholder
                             : rest.placeholder
                     }
                 />

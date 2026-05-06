@@ -56,12 +56,7 @@ export const ElementCreator = ({ onSubmit }: ElementCreatorProps) => {
     const log = useActivityLog();
 
     const childrenOptions = useMemo(
-        () =>
-            elements
-                .filter(
-                    ({ type }) => type !== 'vertex' && type !== 'edge',
-                )
-                .map(serializedElementToGraphElementOption),
+        () => elements.map(serializedElementToGraphElementOption),
         [elements],
     );
 
