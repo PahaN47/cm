@@ -32,3 +32,15 @@
         }
     }
 }
+
+// Scrollbar tokens on `html` so viewport scrollbars pick up theme (vars on
+// `.theme-provider` alone do not inherit to `html` / `body`).
+html:has(.theme-provider_theme_light) {
+    --scrollbar-thumb: #{rgba($light-color-text-primary, 0.28)};
+    --scrollbar-thumb-hover: #{rgba($light-color-text-primary, 0.44)};
+}
+
+html:has(.theme-provider_theme_dark) {
+    --scrollbar-thumb: #{rgba($color-text-primary, 0.22)};
+    --scrollbar-thumb-hover: #{rgba($color-text-primary, 0.38)};
+}
