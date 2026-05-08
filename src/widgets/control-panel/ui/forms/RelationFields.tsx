@@ -91,7 +91,7 @@ export const RelationFields = ({
             size: 's',
             value: newId,
             onChange: handleInputChange,
-            placeholder: 'ID элемента',
+            placeholder: 'Элемент',
             style: { flex: 1, minWidth: 0 },
         };
 
@@ -118,7 +118,9 @@ export const RelationFields = ({
                 style={{ cursor: 'pointer', userSelect: 'none' }}
             >
                 {collapsed ? '▸' : '▾'} {label}
-                {collapsed && selectedIds.length > 0 && ` (${selectedIds.length})`}
+                {collapsed &&
+                    selectedIds.length > 0 &&
+                    ` (${selectedIds.length})`}
             </label>
             {!collapsed && (
                 <>

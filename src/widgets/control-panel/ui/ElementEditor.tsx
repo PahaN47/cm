@@ -229,8 +229,10 @@ export const ElementEditor = ({
                     value={displayType}
                     onChange={handleTypeChange}
                 >
-                    {ELEMENT_TYPES.map((type) => (
-                        <Select.Option key={type} value={type} />
+                    {ELEMENT_TYPES.map(({ type, label }) => (
+                        <Select.Option key={type} value={type}>
+                            {label}
+                        </Select.Option>
                     ))}
                 </Form.Field>
             </Form.Group>

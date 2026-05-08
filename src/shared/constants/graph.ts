@@ -1,8 +1,12 @@
-import { ElementType } from '@/entities/graph/model';
+import { ElementType } from '@/entities/graph';
 
-export const ELEMENT_TYPES = [
-    'vertex',
-    'edge',
-    'metavertex',
-    'metaedge',
-] as readonly ElementType[];
+export type ElementTypeOption = {
+    type: ElementType;
+    label: string;
+};
+
+export const ELEMENT_TYPES: ElementTypeOption[] = [
+    { type: 'vertex', label: 'Вершина' },
+    { type: 'edge', label: 'Ребро' },
+    { type: 'metavertex', label: 'Метавершина' },
+];

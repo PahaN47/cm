@@ -92,10 +92,7 @@ export const ElementCreator = ({ onSubmit }: ElementCreatorProps) => {
             const newId = crypto.randomUUID();
             const dataWithName: ElementFormSubmitData = {
                 ...data,
-                attributes: mergeNameIntoAttributes(
-                    data.attributes,
-                    name,
-                ),
+                attributes: mergeNameIntoAttributes(data.attributes, name),
             };
 
             log(ActionNames.CREATE_ELEMENT, {
@@ -107,7 +104,11 @@ export const ElementCreator = ({ onSubmit }: ElementCreatorProps) => {
             store.addElement(buildGraphElement(newId, type, dataWithName));
 
             if (dataWithName.children.length) {
-                store.setRelations('parentChildren', newId, dataWithName.children);
+                store.setRelations(
+                    'parentChildren',
+                    newId,
+                    dataWithName.children,
+                );
             }
             if (dataWithName.parents.length) {
                 store.setRelations('childParents', newId, dataWithName.parents);
@@ -150,8 +151,10 @@ export const ElementCreator = ({ onSubmit }: ElementCreatorProps) => {
                         setType(e.target.value as ElementType);
                     }}
                 >
-                    {ELEMENT_TYPES.map((t) => (
-                        <Select.Option key={t} value={t} />
+                    {ELEMENT_TYPES.map(({ type, label }) => (
+                        <Select.Option key={type} value={type}>
+                            {label}
+                        </Select.Option>
                     ))}
                 </Form.Field>
             </Form.Group>
